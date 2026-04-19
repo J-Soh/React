@@ -20,7 +20,7 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  
+
   const [selectedFacility, setSelectedFacility] = useState('');
   const [bookingDate, setBookingDate] = useState('');
   const [startTime, setStartTime] = useState(''); // Changed from bookingTime
@@ -28,15 +28,15 @@ export default function App() {
   const [facilityName, setFacilityName] = useState('');
   const [facilityCapacity, setFacilityCapacity] = useState('');
   const [expandedFacility, setExpandedFacility] = useState(null);
-  const [capacityCheck, setCapacityCheck] = useState({ 
-    available: false, 
-    remaining: 0, 
-    totalCapacity: 0, 
-    booked: 0, 
-    facilityName: '', 
-    timeOverlap: false 
+  const [capacityCheck, setCapacityCheck] = useState({
+    available: false,
+    remaining: 0,
+    totalCapacity: 0,
+    booked: 0,
+    facilityName: '',
+    timeOverlap: false
   });
-  
+
   // Initialize session
   useEffect(() => {
     const initSession = async () => {
@@ -64,31 +64,31 @@ export default function App() {
     } else if (selectedFacility) {
       const facilityIdNum = parseInt(selectedFacility);
       const facility = facilities.find(f => f.id === facilityIdNum);
-      
+
       if (facility) {
-        setCapacityCheck({ 
+        setCapacityCheck({
           available: false,
-          remaining: 0, 
-          totalCapacity: facility.capacity, 
+          remaining: 0,
+          totalCapacity: facility.capacity,
           booked: 0,
           timeOverlap: false
         });
       } else {
-        setCapacityCheck({ 
-          available: false, 
-          remaining: 0, 
-          totalCapacity: 0, 
+        setCapacityCheck({
+          available: false,
+          remaining: 0,
+          totalCapacity: 0,
           booked: 0,
-          timeOverlap: false 
+          timeOverlap: false
         });
       }
     } else {
-      setCapacityCheck({ 
-        available: false, 
-        remaining: 0, 
-        totalCapacity: 0, 
+      setCapacityCheck({
+        available: false,
+        remaining: 0,
+        totalCapacity: 0,
         booked: 0,
-        timeOverlap: false 
+        timeOverlap: false
       });
     }
   }, [selectedFacility, bookingDate, startTime, endTime, bookings, facilities]);
@@ -105,7 +105,7 @@ export default function App() {
     const e1 = timeToMinutes(end1);
     const s2 = timeToMinutes(start2);
     const e2 = timeToMinutes(end2);
-    
+
     return (s1 < e2 && e1 > s2);
   };
 
@@ -113,36 +113,36 @@ export default function App() {
   const checkFacilityCapacity = (facilityId, date, startTime, endTime) => {
     const facilityIdNum = parseInt(facilityId);
     const facility = facilities.find(f => f.id === facilityIdNum);
-    
+
     if (!facility) {
       console.log('Facility not found:', facilityIdNum);
-      return { 
-        available: false, 
-        remaining: 0, 
-        totalCapacity: 0, 
+      return {
+        available: false,
+        remaining: 0,
+        totalCapacity: 0,
         booked: 0,
-        timeOverlap: false 
+        timeOverlap: false
       };
     }
-    
+
     console.log('Checking capacity for:', facility.name, 'from', startTime, 'to', endTime);
-    
+
     // Find approved bookings that overlap with requested time period
     const overlappingBookings = bookings.filter(b => {
       const bookingFacilityId = typeof b.facility_id === 'string' ? parseInt(b.facility_id) : b.facility_id;
       if (bookingFacilityId !== facilityIdNum || b.date !== date || b.status !== 'approved') {
         return false;
       }
-      
+
       // Check if time periods overlap
       return checkTimeOverlap(startTime, endTime, b.start_time, b.end_time);
     });
-    
+
     console.log('Overlapping bookings:', overlappingBookings);
-    
+
     const remaining = facility.capacity - overlappingBookings.length;
     const timeOverlap = overlappingBookings.length > 0;
-    
+
     const result = {
       available: remaining > 0,
       remaining: remaining,
@@ -150,7 +150,7 @@ export default function App() {
       booked: overlappingBookings.length,
       timeOverlap: timeOverlap
     };
-    
+
     console.log('Capacity check result:', result);
     return result;
   };
@@ -164,13 +164,13 @@ export default function App() {
         .select('*')
         .eq('id', userId)
         .single();
-      
+
       if (error) {
         console.error('Error loading profile:', error);
         setAuthMessage('Error loading profile: ' + error.message);
         return;
       }
-      
+
       if (data) {
         console.log('Profile loaded:', data);
         setUserProfile(data);
@@ -198,13 +198,13 @@ export default function App() {
         .from('facilities')
         .select('*')
         .order('name');
-      
+
       if (error) {
         console.error('Error loading facilities:', error);
         setAuthMessage('Error loading facilities: ' + error.message);
         return;
       }
-      
+
       console.log('Facilities loaded:', data);
       setFacilities(data || []);
     } catch (error) {
@@ -218,7 +218,7 @@ export default function App() {
   // Check current time of when user book a facility
   const formatDate = (dateString) => {
     if (!dateString) return 'Date not available';
-    
+
     try {
       const date = new Date(dateString);
       return isNaN(date.getTime()) ? 'Date not available' : date.toLocaleString();
@@ -227,7 +227,7 @@ export default function App() {
       return 'Date not available';
     }
   };
-  
+
   // Added client cancel booking function
   const handleCancelBooking = async (bookingId) => {
     const confirmCancel = window.confirm('Are you sure you want to cancel this booking?');
@@ -240,19 +240,19 @@ export default function App() {
         .delete()
         .eq('id', bookingId)
         .eq('user_id', currentUser.id);
-      
+
       if (error) throw error;
-      
+
       setAuthMessage('Booking cancelled successfully!');
-      
+
       // Reload bookings
       await loadBookings(userProfile.role);
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => {
         setAuthMessage('');
       }, 3000);
-      
+
     } catch (error) {
       console.error('Error cancelling booking:', error);
       setAuthMessage('Error cancelling booking: ' + error.message);
@@ -268,24 +268,24 @@ export default function App() {
     console.log('Booking date:', bookingDate);
     console.log('Start time:', startTime);
     console.log('End time:', endTime);
-    
+
     // Validate time period
     if (startTime >= endTime) {
       setAuthMessage('End time must be after start time');
       return;
     }
-    
+
     if (!selectedFacility || !bookingDate || !startTime || !endTime) {
       alert('Please fill in all fields');
       return;
     }
-    
+
     const capacityCheckResult = checkFacilityCapacity(selectedFacility, bookingDate, startTime, endTime);
     if (!capacityCheckResult.available) {
       setAuthMessage(`This facility is fully booked for the selected time period. Capacity: ${capacityCheckResult.totalCapacity}, Already booked: ${capacityCheckResult.booked}`);
       return;
     }
-    
+
     if (capacityCheckResult.timeOverlap) {
       setAuthMessage('Warning: Your selected time period overlaps with existing bookings. Please check availability.');
       return;
@@ -308,17 +308,17 @@ export default function App() {
         .select();
 
       console.log('Booking insert result:', { data, error });
-      
+
       if (error) throw error;
 
       setAuthMessage('Booking request sent for approval!');
-      
+
       // Clear form
       setSelectedFacility('');
       setBookingDate('');
       setStartTime('');
       setEndTime('');
-      
+
       // Wait and reload data
       setTimeout(async () => {
         console.log('Reloading data after booking...');
@@ -327,7 +327,7 @@ export default function App() {
           setAuthMessage('');
         }, 3000);
       }, 1000);
-      
+
     } catch (error) {
       console.error('Booking error details:', error);
       alert('Booking error: ' + error.message);
@@ -341,7 +341,7 @@ export default function App() {
   const loadBookings = async (role) => {
     console.log('Loading bookings for role:', role);
     console.log('Current user ID:', currentUser?.id);
-    
+
     try {
       // Build query based on role
       let query = supabase
@@ -349,32 +349,32 @@ export default function App() {
         .select('*')
         .order('date', { ascending: true })
         .order('start_time', { ascending: true });
-      
+
       // If client, only get their bookings
       if (role !== 'boss') {
         query = query.eq('user_id', currentUser?.id);
       }
-      
+
       const { data: bookingsData, error: bookingsError } = await query;
-      
+
       if (bookingsError) {
         console.error('Bookings query error:', bookingsError);
         throw bookingsError;
       }
-      
+
       console.log('Raw bookings data:', bookingsData);
-      
+
       if (!bookingsData || bookingsData.length === 0) {
         console.log('No bookings found');
         setBookings([]);
         return;
       }
-      
+
       // Enrich bookings with facility and user info
       const enrichedBookings = await Promise.all(
         bookingsData.map(async (booking) => {
           console.log('Processing booking:', booking);
-          
+
           // Get facility info
           let facilityInfo = { name: 'Unknown Facility', capacity: 0 };
           if (booking.facility_id) {
@@ -384,7 +384,7 @@ export default function App() {
                 .select('name, capacity')
                 .eq('id', booking.facility_id)
                 .single();
-              
+
               if (facilityData) {
                 facilityInfo = facilityData;
               }
@@ -392,7 +392,7 @@ export default function App() {
               console.error('Error fetching facility:', facilityError);
             }
           }
-          
+
           // Get user profile info
           let userInfo = { name: 'Unknown User', role: 'client' };
           if (booking.user_id && role === 'boss') {
@@ -402,7 +402,7 @@ export default function App() {
                 .select('name, role')
                 .eq('id', booking.user_id)
                 .single();
-              
+
               if (profileData) {
                 userInfo = profileData;
               } else {
@@ -419,7 +419,7 @@ export default function App() {
               console.error('Error fetching profile:', profileError);
             }
           }
-          
+
           // For client view, use their own profile
           if (role !== 'boss' && booking.user_id === currentUser?.id && userProfile) {
             userInfo = {
@@ -435,10 +435,10 @@ export default function App() {
           };
         })
       );
-      
+
       console.log('Final enriched bookings:', enrichedBookings);
       setBookings(enrichedBookings);
-      
+
     } catch (error) {
       console.error('Error in loadBookings:', error);
       setBookings([]);
@@ -456,10 +456,10 @@ export default function App() {
       setAuthMessage('Please fill in all fields');
       return;
     }
-    
+
     setLoading(true);
     setAuthMessage('');
-    
+
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -476,12 +476,12 @@ export default function App() {
             email,
             password
           });
-          
+
           if (signInError) {
             setAuthMessage('Email already registered. Please use correct password.');
             return;
           }
-          
+
           // User signed in successfully
           setCurrentUser(signInData.user);
           await loadUserProfile(signInData.user.id);
@@ -528,7 +528,7 @@ export default function App() {
 
     setLoading(true);
     setAuthMessage('');
-    
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -670,36 +670,36 @@ export default function App() {
   const handleCancelBookingForBoss = async (bookingId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this booking?');
     if (!confirmDelete) return;
-    
+
     setLoading(true);
     setAuthMessage('');
     try {
       console.log('Deleting booking ID:', bookingId);
-      
+
       const { error, data } = await supabase
         .from('bookings')
         .delete()
         .eq('id', bookingId)
         .select();
-    
+
       console.log('Delete result:', { error, data });
 
       if (error) {
         console.error('Delete error details:', error);
         throw error;
       }
- 
+
       setAuthMessage('Booking deleted successfully!');
-      
+
       // Reload bookings
       await loadBookings(userProfile.role);
       await loadFacilities(); // Also reload facilities to update counts
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => {
         setAuthMessage('');
       }, 3000);
-      
+
     } catch (error) {
       console.error('Error deleting booking:', error);
       setAuthMessage('Error deleting booking: ' + error.message);
@@ -719,7 +719,7 @@ export default function App() {
   };
 
   const getStatusIcon = (status) => {
-    switch(status) {
+    switch (status) {
       case 'approved': return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'rejected': return <XCircle className="w-5 h-5 text-red-500" />;
       default: return <AlertCircle className="w-5 h-5 text-yellow-500" />;
@@ -727,211 +727,201 @@ export default function App() {
   };
 
   // Login/Signup View
-if (view === 'login') {
-  return (
-    <div className="min-h-screen bg-linear-to-r/srgb from-indigo-200 to-teal-100 flex items-center justify-center p-4">
-      {/* Add group class here */}
-      <div className="group relative">
-        {/* Glow effect behind the card */}
-        <div className="absolute -inset-1.5 animate-tilt rounded-lg bg-linear-to-r from-indigo-300 to-violet-300 opacity-70 blur transition duration-2000 group-hover:opacity-100 group-hover:duration-200"></div>
-        
-        {/* Your existing card content */}
-        <div className="relative bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">SAF Facility Booking</h1>
-            <p className="text-gray-600">
-              {isAuthMode === 'login' ? 'Sign in to manage your bookings' : 'Create your account'}
-            </p>
-          </div>
-          
-          {authMessage && (
-            <div className={`mb-4 p-3 rounded-lg ${
-              authMessage.includes('success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}>
-              <p className="text-sm">{authMessage}</p>
+  if (view === 'login') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)' }}>
+        <div className="group relative w-full max-w-md">
+          {/* Animated glow */}
+          <div className="absolute -inset-1 rounded-2xl opacity-60 blur-lg transition duration-1000 group-hover:opacity-90" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2, #6B8DD6)' }}></div>
+
+          {/* Glass card */}
+          <div className="relative rounded-2xl p-8 w-full" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 25px 50px rgba(0,0,0,0.4)' }}>
+
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: '#fff', letterSpacing: '-0.02em' }}>SAF Facility Booking</h1>
+              <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.95rem' }}>
+                {isAuthMode === 'login' ? 'Welcome back — sign in to continue' : 'Create your account to get started'}
+              </p>
             </div>
-          )}
-          
-          <div className="space-y-6">
-            {/* Your form content remains the same */}
-            {isAuthMode === 'signup' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter your name"
-                />
+
+            {authMessage && (
+              <div className={`mb-5 p-3 rounded-xl text-sm font-medium ${authMessage.includes('success') ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                }`}>
+                {authMessage}
               </div>
             )}
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter email"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (isAuthMode === 'login' ? handleLogin() : handleSignup())}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter password"
-              />
-            </div>
-            
-            <button
-              onClick={isAuthMode === 'login' ? handleLogin : handleSignup}
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
-            >
-              {loading && <Loader className="w-4 h-4 animate-spin" />}
-              {isAuthMode === 'login' ? 'Sign In' : 'Sign Up'}
-            </button>
 
-            <div className="text-center">
+            <div className="space-y-4">
+              {isAuthMode === 'signup' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Full Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl text-white placeholder-white/30 outline-none transition-all"
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+                    placeholder="Enter your name"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Email Address</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-white placeholder-white/30 outline-none transition-all"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (isAuthMode === 'login' ? handleLogin() : handleSignup())}
+                  className="w-full px-4 py-3 rounded-xl text-white placeholder-white/30 outline-none transition-all"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+                  placeholder="••••••••"
+                />
+              </div>
+
               <button
-                onClick={() => setIsAuthMode(isAuthMode === 'login' ? 'signup' : 'login')}
-                className="text-blue-600 hover:text-blue-700 text-sm"
+                onClick={isAuthMode === 'login' ? handleLogin : handleSignup}
+                disabled={loading}
+                className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all"
+                style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', boxShadow: '0 8px 20px rgba(102,126,234,0.4)' }}
               >
-                {isAuthMode === 'login' 
-                  ? "Don't have an account? Sign up" 
-                  : 'Already have an account? Sign in'}
+                {loading && <Loader className="w-4 h-4 animate-spin" />}
+                {isAuthMode === 'login' ? 'Sign In' : 'Create Account'}
               </button>
+
+              <div className="text-center pt-2">
+                <button
+                  onClick={() => setIsAuthMode(isAuthMode === 'login' ? 'signup' : 'login')}
+                  className="text-sm transition-colors"
+                  style={{ color: 'rgba(255,255,255,0.5)' }}
+                >
+                  {isAuthMode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+                  <span style={{ color: '#a78bfa', fontWeight: 600 }}>
+                    {isAuthMode === 'login' ? 'Sign up' : 'Sign in'}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   // Boss Approval View 
   if (view === 'approvals' && userProfile?.role === 'boss') {
     const pendingBookings = getPendingBookings();
     console.log('Boss view - Pending bookings:', pendingBookings);
-    
+
     return (
-      <div className="min-h-screen bg-linear-to-r/srgb from-indigo-200 to-teal-100 p-7">
+      <div className="min-h-screen p-6" style={{ background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', minHeight: '100vh' }}>
         <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Boss Dashboard</h1>
-                <p className="text-gray-600">Welcome, {userProfile.name}</p>
-                <p className="text-sm text-blue-600 mt-1">
-                  {pendingBookings.length} pending booking{pendingBookings.length !== 1 ? 's' : ''} to approve
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setView('approvals')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    view === 'approvals' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Approvals ({pendingBookings.length})
-                </button>
-                <button
-                  onClick={() => setView('manage-facilities')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    view === 'manage-facilities' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Manage Facilities
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
+          {/* Nav Header */}
+          <div className="rounded-2xl p-5 mb-6 flex justify-between items-center" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div>
+              <h1 className="text-2xl font-bold text-white" style={{ letterSpacing: '-0.02em' }}>Boss Dashboard</h1>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>Welcome back, <span style={{ color: '#a78bfa' }}>{userProfile.name}</span></p>
+              <p className="text-sm mt-1" style={{ color: '#fbbf24' }}>
+                {pendingBookings.length} pending booking{pendingBookings.length !== 1 ? 's' : ''} awaiting approval
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setView('approvals')}
+                className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={view === 'approvals' ? { background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', boxShadow: '0 4px 15px rgba(102,126,234,0.4)' } : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
+                Approvals ({pendingBookings.length})
+              </button>
+              <button
+                onClick={() => setView('manage-facilities')}
+                className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={view === 'manage-facilities' ? { background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', boxShadow: '0 4px 15px rgba(102,126,234,0.4)' } : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
+                Manage Facilities
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={{ background: 'rgba(239,68,68,0.2)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.3)' }}
+              >
+                Logout
+              </button>
             </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Pending Approvals</h2>
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+
+          <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-xl font-semibold text-white">Pending Approvals</h2>
+              <span className="px-3 py-1 rounded-full text-sm font-medium" style={{ background: 'rgba(251,191,36,0.2)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' }}>
                 {pendingBookings.length} pending
               </span>
             </div>
-            
+
             {authMessage && (
-              <div className={`mb-4 p-3 rounded-lg ${
-                authMessage.includes('success') || authMessage.includes('approved') || authMessage.includes('rejected')
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                <p className="text-sm">{authMessage}</p>
+              <div className={`mb-4 p-3 rounded-xl text-sm font-medium ${authMessage.includes('success') || authMessage.includes('approved') || authMessage.includes('rejected')
+                ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                }`}>
+                {authMessage}
               </div>
             )}
 
             {pendingBookings.length === 0 ? (
-              <div className="text-center py-12">
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">No pending bookings to approve</p>
-                <p className="text-gray-400 text-sm mt-2">All booking requests have been processed</p>
+              <div className="text-center py-14">
+                <CheckCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#34d399' }} />
+                <p className="text-lg font-medium text-white">All clear!</p>
+                <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>No pending bookings to approve</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {pendingBookings.map(booking => (
-                  <div key={booking.id} className="border border-yellow-200 bg-yellow-50 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div key={booking.id} className="rounded-xl p-4 transition-all" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)' }}>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertCircle className="w-5 h-5 text-yellow-500" />
-                          <h3 className="font-semibold text-lg text-gray-800">
-                            {booking.facilities?.name || 'Unknown Facility'}
-                          </h3>
+                        <div className="flex items-center gap-2 mb-3">
+                          <AlertCircle className="w-5 h-5" style={{ color: '#fbbf24' }} />
+                          <h3 className="font-semibold text-lg text-white">{booking.facilities?.name || 'Unknown Facility'}</h3>
                         </div>
-                        <div className="mt-2 space-y-2 text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            <span className="font-medium">Booked by:</span> {booking.profiles?.name || 'Unknown User'}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            <span className="font-medium">Date:</span> {booking.date}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            <span className="font-medium">Time:</span> {formatTimePeriod(booking.start_time, booking.end_time)}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            <span className="font-medium">Facility Capacity:</span> {booking.facilities?.capacity || 'Unknown'} people
-                          </div>
+                        <div className="space-y-1.5" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                          <div className="flex items-center gap-2 text-sm"><User className="w-4 h-4" /><span className="font-medium text-white/80">Booked by:</span> {booking.profiles?.name || 'Unknown User'}</div>
+                          <div className="flex items-center gap-2 text-sm"><Calendar className="w-4 h-4" /><span className="font-medium text-white/80">Date:</span> {booking.date}</div>
+                          <div className="flex items-center gap-2 text-sm"><Clock className="w-4 h-4" /><span className="font-medium text-white/80">Time:</span> {formatTimePeriod(booking.start_time, booking.end_time)}</div>
+                          <div className="flex items-center gap-2 text-sm"><Users className="w-4 h-4" /><span className="font-medium text-white/80">Capacity:</span> {booking.facilities?.capacity || 'Unknown'} people</div>
                         </div>
                       </div>
-                      
                       <div className="flex flex-col gap-2 ml-4">
                         <button
                           onClick={() => handleApproval(booking.id, 'approved')}
                           disabled={loading}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                          className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
+                          style={{ background: 'linear-gradient(135deg, #059669, #10b981)', boxShadow: '0 4px 12px rgba(16,185,129,0.35)' }}
                         >
                           Approve
                         </button>
                         <button
                           onClick={() => handleApproval(booking.id, 'rejected')}
                           disabled={loading}
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                          className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
+                          style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)', boxShadow: '0 4px 12px rgba(239,68,68,0.35)' }}
                         >
                           Reject
                         </button>
@@ -950,82 +940,72 @@ if (view === 'login') {
   // Boss Facility Management View  
   if (view === 'manage-facilities' && userProfile?.role === 'boss') {
     return (
-      <div className="min-h-screen bg-linear-to-r/srgb from-indigo-200 to-teal-100 p-7">
+      <div className="min-h-screen p-6" style={{ background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', minHeight: '100vh' }}>
         <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Boss Dashboard</h1>
-                <p className="text-gray-600">Welcome, {userProfile.name}</p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setView('approvals')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    view === 'approvals' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Approvals ({getPendingBookings().length})
-                </button>
-                <button
-                  onClick={() => setView('manage-facilities')}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    view === 'manage-facilities' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Manage Facilities
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
+          <div className="rounded-2xl p-5 mb-6 flex justify-between items-center" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div>
+              <h1 className="text-2xl font-bold text-white" style={{ letterSpacing: '-0.02em' }}>Boss Dashboard</h1>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>Welcome back, <span style={{ color: '#a78bfa' }}>{userProfile.name}</span></p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setView('approvals')}
+                className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={view === 'approvals' ? { background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', boxShadow: '0 4px 15px rgba(102,126,234,0.4)' } : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
+                Approvals ({getPendingBookings().length})
+              </button>
+              <button
+                onClick={() => setView('manage-facilities')}
+                className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={view === 'manage-facilities' ? { background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', boxShadow: '0 4px 15px rgba(102,126,234,0.4)' } : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
+                Manage Facilities
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={{ background: 'rgba(239,68,68,0.2)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.3)' }}
+              >
+                Logout
+              </button>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">Add New Facility</h2>
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+              <h2 className="text-xl font-semibold text-white mb-5">Add New Facility</h2>
 
               {authMessage && (
-                <div className={`mb-4 p-3 rounded-lg ${
-                  authMessage.includes('success') 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-red-100 text-red-700'
-                }`}>
-                  <p className="text-sm">{authMessage}</p>
+                <div className={`mb-4 p-3 rounded-xl text-sm font-medium ${authMessage.includes('success')
+                  ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                  : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                  }`}>
+                  {authMessage}
                 </div>
               )}
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Facility Name
-                  </label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Facility Name</label>
                   <input
                     type="text"
                     value={facilityName}
                     onChange={(e) => setFacilityName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 rounded-xl text-white placeholder-white/30 outline-none"
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
                     placeholder="e.g., Conference Room A"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Capacity
-                  </label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Capacity</label>
                   <input
                     type="number"
                     value={facilityCapacity}
                     onChange={(e) => setFacilityCapacity(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 rounded-xl text-white placeholder-white/30 outline-none"
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
                     placeholder="e.g., 10"
                     min="1"
                   />
@@ -1034,25 +1014,26 @@ if (view === 'login') {
                 <button
                   onClick={handleAddFacility}
                   disabled={loading}
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
+                  className="w-full py-3 rounded-xl font-semibold text-white transition-all disabled:opacity-50"
+                  style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', boxShadow: '0 8px 20px rgba(102,126,234,0.4)' }}
                 >
                   {loading ? 'Adding...' : 'Add Facility'}
                 </button>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Existing Facilities</h2>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+              <div className="flex justify-between items-center mb-5">
+                <h2 className="text-xl font-semibold text-white">Existing Facilities</h2>
+                <span className="px-3 py-1 rounded-full text-sm font-medium" style={{ background: 'rgba(102,126,234,0.2)', color: '#a78bfa', border: '1px solid rgba(102,126,234,0.3)' }}>
                   {facilities.length} facilities
                 </span>
               </div>
-              
+
               {facilities.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500 text-lg mb-2">No facilities yet</p>
-                  <p className="text-gray-400 text-sm">Add a facility to get started!</p>
+                  <p className="text-lg font-medium text-white">No facilities yet</p>
+                  <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Add a facility to get started!</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -1060,47 +1041,44 @@ if (view === 'login') {
                     const facilityBookings = bookings.filter(b => b.facility_id === facility.id);
                     const pendingBookings = facilityBookings.filter(b => b.status === 'pending');
                     const approvedBookings = facilityBookings.filter(b => b.status === 'approved');
-                    
+
                     return (
-                      <div key={facility.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div key={facility.id} className="rounded-xl p-4 transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
                         <div className="flex justify-between items-start">
-                          <div 
-                            className="flex-1 cursor-pointer" 
+                          <div
+                            className="flex-1 cursor-pointer"
                             onClick={() => setExpandedFacility(expandedFacility === facility.id ? null : facility.id)}
                           >
                             <div className="flex items-center justify-between">
                               <div>
-                                <h3 className="font-semibold text-gray-800">{facility.name}</h3>
-                                <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
+                                <h3 className="font-semibold text-white">{facility.name}</h3>
+                                <p className="text-sm flex items-center gap-1 mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
                                   <Users className="w-4 h-4" />
                                   Capacity: {facility.capacity} people
                                 </p>
                               </div>
-                              <svg 
-                                className={`w-5 h-5 text-gray-500 transform transition-transform ${
-                                  expandedFacility === facility.id ? 'rotate-180' : ''
-                                }`} 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
+                              <svg
+                                className={`w-5 h-5 transform transition-transform ${expandedFacility === facility.id ? 'rotate-180' : ''}`}
+                                style={{ color: 'rgba(255,255,255,0.4)' }}
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
                             </div>
 
-                            <div className="flex gap-4 mt-2">
+                            <div className="flex gap-2 mt-2">
                               {approvedBookings.length > 0 && (
-                                <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                                <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399', border: '1px solid rgba(52,211,153,0.3)' }}>
                                   {approvedBookings.length} approved
                                 </span>
                               )}
                               {pendingBookings.length > 0 && (
-                                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">
+                                <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' }}>
                                   {pendingBookings.length} pending
                                 </span>
                               )}
                               {facilityBookings.length === 0 && (
-                                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+                                <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.12)' }}>
                                   No bookings
                                 </span>
                               )}
@@ -1109,7 +1087,8 @@ if (view === 'login') {
                           <button
                             onClick={() => handleDeleteFacility(facility.id)}
                             disabled={loading}
-                            className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 ml-4"
+                            className="px-3 py-1.5 text-sm rounded-xl font-medium transition-all disabled:opacity-50 ml-4"
+                            style={{ background: 'rgba(239,68,68,0.2)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.3)' }}
                           >
                             Delete
                           </button>
@@ -1120,22 +1099,20 @@ if (view === 'login') {
                             <h4 className="font-medium text-gray-700 mb-2">Booking Details:</h4>
                             <div className="space-y-2">
                               {facilityBookings.map(booking => (
-                                <div 
-                                  key={booking.id} 
-                                  className={`p-2 rounded text-sm ${
-                                    booking.status === 'approved' ? 'bg-green-50 border border-green-200' :
+                                <div
+                                  key={booking.id}
+                                  className={`p-2 rounded text-sm ${booking.status === 'approved' ? 'bg-green-50 border border-green-200' :
                                     booking.status === 'pending' ? 'bg-yellow-50 border border-yellow-200' :
-                                    'bg-red-50 border border-red-200'
-                                  }`}
+                                      'bg-red-50 border border-red-200'
+                                    }`}
                                 >
                                   <div className="flex justify-between items-center">
                                     <div>
                                       <span className="font-medium">{booking.profiles?.name || 'Unknown User'}</span>
-                                      <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${
-                                        booking.status === 'approved' ? 'bg-green-200 text-green-800' :
+                                      <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${booking.status === 'approved' ? 'bg-green-200 text-green-800' :
                                         booking.status === 'pending' ? 'bg-yellow-200 text-yellow-800' :
-                                        'bg-red-200 text-red-800'
-                                      }`}>
+                                          'bg-red-200 text-red-800'
+                                        }`}>
                                         {booking.status}
                                       </span>
                                     </div>
@@ -1181,7 +1158,7 @@ if (view === 'login') {
                             </div>
                           </div>
                         )}
-                        
+
                         {expandedFacility === facility.id && facilityBookings.length === 0 && (
                           <div className="mt-4 pt-4 border-t border-gray-200 text-center text-gray-500 text-sm">
                             No bookings for this facility
@@ -1201,54 +1178,47 @@ if (view === 'login') {
 
   // Client View
   return (
-    <div className="min-h-screen bg-linear-to-r/srgb from-indigo-200 to-teal-100 p-7">
+    <div className="min-h-screen p-6" style={{ background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', minHeight: '100vh' }}>
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Facility Booking</h1>
-              <p className="text-gray-600">Welcome, {userProfile?.name}</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setView('facilities')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  view === 'facilities' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Book Facility
-              </button>
-              <button
-                onClick={() => setView('mybookings')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  view === 'mybookings' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                My Bookings ({getUserBookings().length})
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
+        <div className="rounded-2xl p-5 mb-6 flex justify-between items-center" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+          <div>
+            <h1 className="text-2xl font-bold text-white" style={{ letterSpacing: '-0.02em' }}>Facility Booking</h1>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>Welcome back, <span style={{ color: '#a78bfa' }}>{userProfile?.name}</span></p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setView('facilities')}
+              className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+              style={view === 'facilities' ? { background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', boxShadow: '0 4px 15px rgba(102,126,234,0.4)' } : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
+            >
+              Book Facility
+            </button>
+            <button
+              onClick={() => setView('mybookings')}
+              className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+              style={view === 'mybookings' ? { background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', boxShadow: '0 4px 15px rgba(102,126,234,0.4)' } : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
+            >
+              My Bookings ({getUserBookings().length})
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+              style={{ background: 'rgba(239,68,68,0.2)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.3)' }}
+            >
+              Logout
+            </button>
           </div>
         </div>
 
         {view === 'facilities' && (
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
               <h2 className="text-xl font-semibold mb-4">Available Facilities</h2>
               <div className="space-y-3">
                 {facilities.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-gray-500">No facilities available for booking</p>
-                    <p className="text-gray-400 text-sm mt-2">Contact administrator to add facilities</p>
+                    <p className="text-white">No facilities available for booking</p>
+                    <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Contact administrator to add facilities</p>
                   </div>
                 ) : (
                   facilities.map(facility => {
@@ -1256,33 +1226,33 @@ if (view === 'login') {
                       b => b.facility_id === facility.id && b.status === 'approved'
                     );
                     const pendingBookings = bookings.filter(
-                      b => b.facility_id === facility.id && 
-                           b.user_id === currentUser?.id && 
-                           b.status === 'pending'
+                      b => b.facility_id === facility.id &&
+                        b.user_id === currentUser?.id &&
+                        b.status === 'pending'
                     );
-                    
+
                     return (
-                      <div key={facility.id} className="border border-gray-200 rounded-lg p-4">
+                      <div key={facility.id} className="rounded-xl p-4 transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h3 className="font-semibold text-gray-800">{facility.name}</h3>
-                            <p className="text-sm text-gray-600 flex items-center gap-1">
+                            <h3 className="font-semibold text-white">{facility.name}</h3>
+                            <p className="text-sm flex items-center gap-1 mt-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>
                               <Users className="w-4 h-4" />
                               Capacity: {facility.capacity} people
                             </p>
                             {pendingBookings.length > 0 && (
-                              <p className="text-sm text-yellow-600 mt-1">
+                              <p className="text-sm mt-1" style={{ color: '#fbbf24' }}>
                                 You have {pendingBookings.length} pending booking{pendingBookings.length !== 1 ? 's' : ''}
                               </p>
                             )}
                           </div>
                         </div>
                         {facilityBookings.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-gray-200">
-                            <p className="font-medium text-gray-700 text-sm mb-2">Current Bookings:</p>
+                          <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                            <p className="font-medium text-sm mb-2" style={{ color: 'rgba(255,255,255,0.6)' }}>Current Bookings:</p>
                             <div className="space-y-1">
                               {facilityBookings.map(b => (
-                                <p key={b.id} className="text-sm text-gray-600">
+                                <p key={b.id} className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
                                   • {b.date} at {formatTimePeriod(b.start_time, b.end_time)} - {b.profiles?.name || 'Unknown'}
                                 </p>
                               ))}
@@ -1296,115 +1266,104 @@ if (view === 'login') {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">Make a Booking</h2>
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+              <h2 className="text-xl font-semibold text-white mb-5">Make a Booking</h2>
               {authMessage && (
-                <div className={`mb-4 p-3 rounded-lg ${
-                  authMessage.includes('success') || authMessage.includes('sent for approval') 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-red-100 text-red-700'
-                }`}>
-                  <p className="text-sm">{authMessage}</p>
+                <div className={`mb-4 p-3 rounded-xl text-sm font-medium ${authMessage.includes('success') || authMessage.includes('sent for approval')
+                  ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                  : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                  }`}>
+                  {authMessage}
                 </div>
               )}
               <div className="space-y-4">
-                {/* Facility selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Facility
-                  </label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Select Facility</label>
                   <select
                     value={selectedFacility}
                     onChange={(e) => setSelectedFacility(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 rounded-xl text-white outline-none"
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
                   >
-                    <option value="">Choose a facility...</option>
+                    <option value="" style={{ background: '#302b63' }}>Choose a facility...</option>
                     {facilities.map(f => (
-                      <option key={f.id} value={f.id}>{f.name}</option>
+                      <option key={f.id} value={f.id} style={{ background: '#302b63' }}>{f.name}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Date selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date
-                  </label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Date</label>
                   <input
                     type="date"
                     value={bookingDate}
                     onChange={(e) => setBookingDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 rounded-xl text-white outline-none"
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }}
                   />
                 </div>
-                
-                {/* Start Time */}
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Start Time
-                  </label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Start Time</label>
                   <input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 rounded-xl text-white outline-none"
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }}
                   />
                 </div>
 
-                {/* End Time */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    End Time
-                  </label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>End Time</label>
                   <input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 rounded-xl text-white outline-none"
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', colorScheme: 'dark' }}
                   />
                 </div>
-                
+
                 {/* Capacity check display */}
                 {selectedFacility && (
-                  <div className={`p-3 rounded-lg ${
-                    (bookingDate && startTime && endTime && capacityCheck.available && !capacityCheck.timeOverlap) 
-                      ? 'bg-green-50 border border-green-200' : 
-                    (bookingDate && startTime && endTime && (!capacityCheck.available || capacityCheck.timeOverlap)) 
+                  <div className={`p-3 rounded-lg ${(bookingDate && startTime && endTime && capacityCheck.available && !capacityCheck.timeOverlap)
+                    ? 'bg-green-50 border border-green-200' :
+                    (bookingDate && startTime && endTime && (!capacityCheck.available || capacityCheck.timeOverlap))
                       ? 'bg-red-50 border border-red-200' :
-                    'bg-blue-50 border border-blue-200'
-                  }`}>
-                    <p className={`text-sm font-medium ${
-                      (bookingDate && startTime && endTime && capacityCheck.available && !capacityCheck.timeOverlap) 
-                        ? 'text-green-700' : 
-                      (bookingDate && startTime && endTime && (!capacityCheck.available || capacityCheck.timeOverlap)) 
-                        ? 'text-red-700' :
-                      'text-blue-700'
+                      'bg-blue-50 border border-blue-200'
                     }`}>
+                    <p className={`text-sm font-medium ${(bookingDate && startTime && endTime && capacityCheck.available && !capacityCheck.timeOverlap)
+                      ? 'text-green-700' :
+                      (bookingDate && startTime && endTime && (!capacityCheck.available || capacityCheck.timeOverlap))
+                        ? 'text-red-700' :
+                        'text-blue-700'
+                      }`}>
                       {(() => {
                         const facilityIdNum = parseInt(selectedFacility);
                         const facility = facilities.find(f => f.id === facilityIdNum);
-                        
+
                         if (!facility) {
                           return 'Facility not found';
                         }
-                        
+
                         if (!bookingDate || !startTime || !endTime) {
                           return `🏢 ${facility.name}: ${facility.capacity} person capacity. Select date and time period to check availability.`;
                         }
-                        
+
                         if (startTime >= endTime) {
                           return '❌ End time must be after start time';
                         }
-                        
+
                         if (!capacityCheck.available) {
                           return `❌ Facility fully booked for this time period!`;
                         }
-                        
+
                         if (capacityCheck.timeOverlap) {
                           return `⚠️ Time period overlaps with ${capacityCheck.booked} existing booking(s). ${capacityCheck.remaining} spot(s) remaining.`;
                         }
-                        
+
                         return `✅ ${capacityCheck.remaining} spot(s) remaining out of ${capacityCheck.totalCapacity} total capacity`;
                       })()}
                     </p>
@@ -1413,24 +1372,23 @@ if (view === 'login') {
 
                 <button
                   onClick={handleBooking}
-                  disabled={loading || !selectedFacility || !bookingDate || !startTime || !endTime || 
+                  disabled={loading || !selectedFacility || !bookingDate || !startTime || !endTime ||
                     startTime >= endTime || (bookingDate && startTime && endTime && !capacityCheck.available)}
-                  className={`w-full py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 ${
-                    (selectedFacility && bookingDate && startTime && endTime && 
-                     startTime < endTime && capacityCheck.available && !capacityCheck.timeOverlap) 
-                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                  className={`w-full py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 ${(selectedFacility && bookingDate && startTime && endTime &&
+                    startTime < endTime && capacityCheck.available && !capacityCheck.timeOverlap)
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
                 >
                   {loading && <Loader className="w-4 h-4 animate-spin" />}
-                  {loading ? 'Processing...' : 
+                  {loading ? 'Processing...' :
                     !selectedFacility ? 'Select a facility' :
-                    !bookingDate ? 'Select a date' :
-                    !startTime ? 'Select start time' :
-                    !endTime ? 'Select end time' :
-                    startTime >= endTime ? 'End time must be after start time' :
-                    !capacityCheck.available ? 'Facility Fully Booked' :
-                    'Submit Booking Request'}
+                      !bookingDate ? 'Select a date' :
+                        !startTime ? 'Select start time' :
+                          !endTime ? 'Select end time' :
+                            startTime >= endTime ? 'End time must be after start time' :
+                              !capacityCheck.available ? 'Facility Fully Booked' :
+                                'Submit Booking Request'}
                 </button>
               </div>
             </div>
@@ -1461,7 +1419,7 @@ if (view === 'login') {
                 </button>
               </div>
             </div>
-            
+
             {getUserBookings().length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg mb-2">No bookings yet</p>
@@ -1476,11 +1434,10 @@ if (view === 'login') {
             ) : (
               <div className="space-y-4">
                 {getUserBookings().map(booking => (
-                  <div key={booking.id} className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
-                    booking.status === 'approved' ? 'border-green-200 bg-green-50' :
+                  <div key={booking.id} className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${booking.status === 'approved' ? 'border-green-200 bg-green-50' :
                     booking.status === 'rejected' ? 'border-red-200 bg-red-50' :
-                    'border-yellow-200 bg-yellow-50'
-                  }`}>
+                      'border-yellow-200 bg-yellow-50'
+                    }`}>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -1507,13 +1464,12 @@ if (view === 'login') {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
-                        <span className={`font-medium capitalize ${
-                          booking.status === 'approved' ? 'text-green-700' :
+                        <span className={`font-medium capitalize ${booking.status === 'approved' ? 'text-green-700' :
                           booking.status === 'rejected' ? 'text-red-700' :
-                          'text-yellow-700'
-                        }`}>
+                            'text-yellow-700'
+                          }`}>
                           {booking.status}
                         </span>
                         {/* Add Cancel button for approved and pending bookings */}
@@ -1528,7 +1484,7 @@ if (view === 'login') {
                         )}
                       </div>
                     </div>
-                    
+
                     {booking.status === 'pending' && (
                       <div className="mt-4 pt-3 border-t border-yellow-200">
                         <p className="text-sm text-yellow-700">
@@ -1536,7 +1492,7 @@ if (view === 'login') {
                         </p>
                       </div>
                     )}
-                    
+
                     {booking.status === 'rejected' && (
                       <div className="mt-4 pt-3 border-t border-red-200">
                         <p className="text-sm text-red-700">

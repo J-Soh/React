@@ -1,117 +1,96 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
-/* ---- Design System (Dark Theme) ---- */
-:root {
-  --card: #262626;
-  --ring: #3b82f6;
-  --input: #404040;
-  --muted: #262626;
-  --accent: #1e3a8a;
-  --border: #404040;
-  --radius: 0.5rem;
-  --popover: #262626;
-  --primary: #3b82f6;
-  --sidebar: #171717;
-  --secondary: #262626;
-  --background: #111113;
-  --foreground: #e5e5e5;
-  --destructive: #ef4444;
-  --card-foreground: #e5e5e5;
-  --muted-foreground: #a3a3a3;
-  --accent-foreground: #bfdbfe;
-  --popover-foreground: #e5e5e5;
-  --primary-foreground: #ffffff;
-  --secondary-foreground: #e5e5e5;
-  --destructive-foreground: #ffffff;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
 @theme {
-  --color-brand: var(--primary);
-  --color-surface: var(--card);
-  --color-surface-foreground: var(--card-foreground);
-  --color-border-subtle: var(--border);
-  --color-muted-fg: var(--muted-foreground);
-  --font-body: var(--font-sans);
+  /* Warm off-white base, slight cream tint */
+  --color-page: oklch(0.965 0.006 85);
+  --color-surface: oklch(0.99 0.003 85);
+  --color-inset: oklch(0.945 0.007 85);
+
+  /* Warm near-black text, not cold gray */
+  --color-fg: oklch(0.18 0.01 85);
+  --color-fg-muted: oklch(0.42 0.01 85);
+  --color-fg-faint: oklch(0.58 0.008 85);
+  --color-on-accent: oklch(0.98 0.003 85);
+
+  /* Warm borders */
+  --color-line: oklch(0.885 0.008 85);
+  --color-line-subtle: oklch(0.925 0.005 85);
+
+  /* Deep olive-green accent, hue 155 */
+  --color-accent: oklch(0.42 0.09 155);
+  --color-accent-hover: oklch(0.37 0.10 155);
+  --color-accent-subtle: oklch(0.955 0.02 155);
+  --color-accent-fg: oklch(0.36 0.08 155);
+
+  /* Semantic */
+  --color-danger: oklch(0.52 0.16 27);
+  --color-danger-hover: oklch(0.47 0.18 27);
+  --color-danger-subtle: oklch(0.96 0.02 27);
+  --color-danger-fg: oklch(0.46 0.13 27);
+
+  --color-ok: oklch(0.50 0.12 155);
+  --color-ok-subtle: oklch(0.96 0.02 155);
+  --color-ok-fg: oklch(0.40 0.10 155);
+
+  --color-warn: oklch(0.62 0.14 70);
+  --color-warn-subtle: oklch(0.96 0.03 70);
+  --color-warn-fg: oklch(0.45 0.10 70);
+
+  /* Top bar */
+  --color-bar: oklch(0.20 0.01 85);
+  --color-bar-fg: oklch(0.88 0.005 85);
+  --color-bar-muted: oklch(0.60 0.008 85);
+  --color-bar-active: oklch(0.98 0.003 85);
+
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
-/* ---- Base ---- */
 body {
   margin: 0;
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-page);
+  color: var(--color-fg);
   min-height: 100vh;
+  font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
-code {
-  font-family: 'JetBrains Mono', source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
 }
 
-/* ---- Noise Overlay ---- */
-.noise-overlay {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 256px 256px;
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-/* ---- Scrollbar ---- */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* ---- Focus ring ---- */
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: rgba(59, 130, 246, 0.5) !important;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
-}
-
-/* ---- Date/time input icons ---- */
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(0.7);
-  cursor: pointer;
-}
-
-/* ---- Select dropdown ---- */
 select option {
-  background: #262626;
-  color: #e5e5e5;
+  background: var(--color-surface);
+  color: var(--color-fg);
 }
 
-/* ---- Animations ---- */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.input-field {
+  display: block;
+  width: 100%;
+  height: 2.125rem;
+  padding: 0 0.625rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  transition: border-color 0.15s ease;
 }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+.input-field::placeholder {
+  color: var(--color-fg-faint);
 }
-
-@keyframes pulse-ring {
-  0% { transform: scale(0.95); opacity: 0.7; }
-  50% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.7; }
-}
-
-.animate-shimmer {
-  background-size: 200% 100%;
-  animation: shimmer 2s linear infinite;
+.input-field:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
 }

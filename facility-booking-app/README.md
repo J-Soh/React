@@ -81,7 +81,7 @@
 
 1. **Clone this repository** to your local machine:
    ```bash
-   git clone https://github.com/JS-codev/React.git
+   git clone https://github.com/J-Soh/React.git
    ```
 
 2. **Install dependencies:**

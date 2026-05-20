@@ -1,34 +1,117 @@
-/* This import base, components, utilities;*/
-@import "tailwindcss"; 
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* ---- Design System (Dark Theme) ---- */
+:root {
+  --card: #262626;
+  --ring: #3b82f6;
+  --input: #404040;
+  --muted: #262626;
+  --accent: #1e3a8a;
+  --border: #404040;
+  --radius: 0.5rem;
+  --popover: #262626;
+  --primary: #3b82f6;
+  --sidebar: #171717;
+  --secondary: #262626;
+  --background: #111113;
+  --foreground: #e5e5e5;
+  --destructive: #ef4444;
+  --card-foreground: #e5e5e5;
+  --muted-foreground: #a3a3a3;
+  --accent-foreground: #bfdbfe;
+  --popover-foreground: #e5e5e5;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #e5e5e5;
+  --destructive-foreground: #ffffff;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
 
 @theme {
-  --color-brand: #3b82f6;
-  --font-body: "Inter", sans-serif;
+  --color-brand: var(--primary);
+  --color-surface: var(--card);
+  --color-surface-foreground: var(--card-foreground);
+  --color-border-subtle: var(--border);
+  --color-muted-fg: var(--muted-foreground);
+  --font-body: var(--font-sans);
 }
 
-
-body { /* Automatically applies this style to body tags */ 
-    margin: 0;
-    font-family: 'Quicksand', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background: radial-gradient(#4c9c9c, #1a1f3d);
-    color: #4c9c9c;
-    min-height: 100vh;
-}
-
-body { /* Automatically applies this style to body tags */ 
+/* ---- Base ---- */
+body {
   margin: 0;
-  font-family: var(--font-body); /* This uses your Inter font */
-  @apply antialiased bg-gray-50; /* This uses Tailwind utilities */
-  /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale; */
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'JetBrains Mono', source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* ---- Noise Overlay ---- */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ---- Focus ring ---- */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+/* ---- Date/time input icons ---- */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.7);
+  cursor: pointer;
+}
+
+/* ---- Select dropdown ---- */
+select option {
+  background: #262626;
+  color: #e5e5e5;
+}
+
+/* ---- Animations ---- */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
 }

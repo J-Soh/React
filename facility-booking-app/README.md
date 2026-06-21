@@ -1,14 +1,11 @@
 ## Full-Stack Facility Booking System App
 
-
-[![Facility-Booking-App](https://img.youtube.com/vi/Csw2wLrrJuA/maxresdefault.jpg)](https://youtu.be/Csw2wLrrJuA)
-
  **Web Preview:** [Full Preview of the App](https://saf-facility-booking.netlify.app/)
 
 
 - Designed and developed a full-stack facility booking application using React.js, Supabase (PostgreSQL), and Netlify.
 
-- Built end-to-end automation using Supabase's full-stack capabilities: PostgreSQL triggers for data validation, and RLS for security.
+- Built Supabase's full-stack capabilities: PostgreSQL triggers for data validation, and RLS for security.
 
 - Implemented a secure authentication system using JSON Web Tokens (JWT) with multi-role user management (clients/admins) and protected routing.
 

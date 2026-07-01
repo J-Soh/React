@@ -7,7 +7,7 @@ const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// ── Feedback ────────────────────────────────────────────────────────
+// FeedBack
 function StatusMsg({ message }) {
   if (!message) return null;
   const ok = /success|approved|rejected|sent for approval|cancelled|deleted|submitted|created|added/i.test(message);
@@ -40,7 +40,6 @@ function StatusPill({ status }) {
   );
 }
 
-// ── App ─────────────────────────────────────────────────────────────
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
@@ -66,7 +65,7 @@ export default function App() {
     available: false, remaining: 0, totalCapacity: 0, booked: 0, facilityName: '', timeOverlap: false
   });
 
-  // ── Effects ───────────────────────────────────────────────────────
+  // Effects
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -94,7 +93,7 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFacility, bookingDate, startTime, endTime, bookings, facilities]);
 
-  // ── Helpers ───────────────────────────────────────────────────────
+  // Helpers
   const mins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const overlaps = (s1, e1, s2, e2) => mins(s1) < mins(e2) && mins(e1) > mins(s2);
   const fmtTime = (s, e) => `${s} – ${e}`;
@@ -113,7 +112,7 @@ export default function App() {
     return { available: rem > 0, remaining: rem, totalCapacity: f.capacity, booked: ov.length, timeOverlap: ov.length > 0 };
   };
 
-  // ── Data ──────────────────────────────────────────────────────────
+  // Data
   const loadUserProfile = async (uid) => {
     try {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', uid).single();
@@ -151,7 +150,7 @@ export default function App() {
     } catch { setBookings([]); }
   };
 
-  // ── Actions ───────────────────────────────────────────────────────
+  // Actions
   const handleLogin = async () => {
     if (!email || !password) { setAuthMessage('Fill in all fields.'); return; }
     setLoading(true); setAuthMessage('');
@@ -264,9 +263,7 @@ export default function App() {
     finally { setLoading(false); }
   };
 
-  // ═══════════════════════════════════════════════════════════════════
-  //  LOGIN
-  // ═══════════════════════════════════════════════════════════════════
+  // Login
   if (view === 'login') {
     return (
       <div className="min-h-screen bg-page flex">
@@ -318,9 +315,7 @@ export default function App() {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════
-  //  TOP BAR
-  // ═══════════════════════════════════════════════════════════════════
+  // Top bar
   const TopBar = ({ tabs }) => (
     <header className="bg-bar">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -351,9 +346,8 @@ export default function App() {
     </header>
   );
 
-  // ═══════════════════════════════════════════════════════════════════
-  //  BOSS: APPROVALS
-  // ═══════════════════════════════════════════════════════════════════
+
+  // Boss account
   if (view === 'approvals' && userProfile?.role === 'boss') {
     const pending = getPending();
     return (

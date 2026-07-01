@@ -1,0 +1,2302 @@
+# New session - 2026-07-01T17:03:22.886Z
+
+**Session ID:** ses_0e15d5cf9ffeEH6Y9ol5h6hkHO
+**Created:** 7/2/2026, 1:03:22 AM
+**Updated:** 7/2/2026, 1:15:59 AM
+
+---
+
+## User
+
+look at my attendanceTracker.jsx file, i want admin_username and admmin_password to be inside .env 
+
+---
+
+## Assistant (Build · DeepSeek V4 Flash Free · 3.9s)
+
+_Thinking:_
+
+The user wants me to look at their AttendanceTracker.jsx file and move `admin_username` and `admin_password` to environment variables (.env). Let me first find the file.
+
+**Tool: glob**
+
+**Input:**
+```json
+{
+  "pattern": "**/*AttendanceTracker*"
+}
+```
+
+**Output:**
+```
+C:\Workflow\Repo\React\attendance-tracker\src\AttendanceTracker.jsx
+```
+
+**Tool: glob**
+
+**Input:**
+```json
+{
+  "pattern": "**/*.env*"
+}
+```
+
+**Output:**
+```
+C:\Workflow\Repo\React\attendance-tracker\.env
+```
+
+---
+
+## Assistant (Build · DeepSeek V4 Flash Free · 5.9s)
+
+_Thinking:_
+
+Let me read both files.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Workflow\\Repo\\React\\attendance-tracker\\src\\AttendanceTracker.jsx"
+}
+```
+
+**Output:**
+```
+<path>C:\Workflow\Repo\React\attendance-tracker\src\AttendanceTracker.jsx</path>
+<type>file</type>
+<content>
+1: import { useState, useEffect, useRef } from "react";
+2: import { createPortal } from "react-dom";
+3: import { motion, AnimatePresence } from "framer-motion";
+4: import "./output.css";
+5: 
+6: const SUPABASE_URL  = process.env.REACT_APP_SUPABASE_URL;
+7: const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
+8: 
+9: const BRANCHES = ["Comd Office", "S1", "S2", "S3", "S4", "HQ Coy", "SPP", "MED CELL", "Not assigned yet"];
+10: const ADMIN_USERNAME = "Br WO";
+11: const ADMIN_PASSWORD = "29971";
+12: 
+13: // All valid ranks
+14: const ALL_RANKS = [
+15:   "PTE","LCP","CPL","CFC","SCT",
+16:   "3SG","2SG","1SG","SSG","MSG",
+17:   "3WO","2WO","1WO","MWO","SWO","CWO",
+18:   "OCT","2LT","LTA","CPT","MAJ","LTC","SLTC","COL","BG","MG","LG",
+19:   "ME1","ME2","ME3","ME4","ME5","ME6","ME7","ME8",
+20:   "DX1","DX2","DX3","DX4","DX5","DX6","DX7","DX8","DX9","DX10","DX11","DX12","DX13","DX14","DX15",
+21: ];
+22: 
+23: // Classification helpers
+24: const COMMANDER_RANKS   = new Set(["SCT","3SG","2SG","1SG","SSG","MSG","3WO","2WO","1WO","MWO","SWO","CWO","OCT","2LT","LTA","CPT","MAJ","LTC","SLTC","COL","BG","MG","LG"]);
+25: const SUPPORT_RANKS     = new Set(["PTE","LCP","CPL","CFC"]);
+26: const OFFICER_RANKS     = new Set(["OCT","2LT","LTA","CPT","MAJ","LTC","SLTC","COL","BG","MG","LG"]);
+27: const DXO_RANKS         = new Set(["DX1","DX2","DX3","DX4","DX5","DX6","DX7","DX8","DX9","DX10","DX11","DX12","DX13","DX14","DX15"]);
+28: 
+29: const isOfficer       = p => (p.role||"wose") === "officer" || OFFICER_RANKS.has(p.rank);
+30: const isCommander     = p => COMMANDER_RANKS.has(p.rank);
+31: const isSupportStaff  = p => (p.role||"wose") === "wose" && SUPPORT_RANKS.has(p.rank);
+32: const isDXO           = p => DXO_RANKS.has(p.rank);
+33: const isPresent       = (p, statuses) => { const s = statuses[p.id]||"pending"; return s==="in"}; // || s === "late" || s === "duty"; };   <- uncomment this to let late and duty to become present instead of being absent. 
+34: 
+35: // Animated Portal Select 
+36: const AnimatedSelect = ({ options, value, onChange, placeholder = "Select...", customStyles = "" }) => {
+37:   const [isOpen, setIsOpen]       = useState(false);
+38:   const [menuStyle, setMenuStyle] = useState({});
+39:   const triggerRef = useRef(null);
+40:   const menuRef    = useRef(null);
+41:   const selected   = options.find(o => o.value === value);
+42: 
+43:   const openMenu = () => {
+44:     const r = triggerRef.current.getBoundingClientRect();
+45:     setMenuStyle({ position:"fixed", top: r.bottom+4, left: r.left, width: Math.max(r.width, 160), zIndex:99999 });
+46:     setIsOpen(true);
+47:   };
+48: 
+49:   useEffect(() => {
+50:     if (!isOpen) return;
+51:     const out = e => {
+52:       if (triggerRef.current && !triggerRef.current.contains(e.target) &&
+53:           menuRef.current   && !menuRef.current.contains(e.target)) setIsOpen(false);
+54:     };
+55:     const repos = () => {
+56:       if (!triggerRef.current) return;
+57:       const r = triggerRef.current.getBoundingClientRect();
+58:       setMenuStyle(p => ({ ...p, top: r.bottom+4, left: r.left, width: Math.max(r.width, 160) }));
+59:     };
+60:     document.addEventListener("mousedown", out);
+61:     window.addEventListener("scroll", repos, true);
+62:     window.addEventListener("resize", repos);
+63:     return () => {
+64:       document.removeEventListener("mousedown", out);
+65:       window.removeEventListener("scroll", repos, true);
+66:       window.removeEventListener("resize", repos);
+67:     };
+68:   }, [isOpen]);
+69: 
+70:   return (
+71:     <div className="relative w-full">
+72:       <div ref={triggerRef} onClick={() => isOpen ? setIsOpen(false) : openMenu()}
+73:         className={`w-full px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg cursor-pointer flex justify-between items-center hover:bg-white/10 transition-all duration-200 ${customStyles}`}>
+74:         <span className="text-sm truncate">{selected ? selected.label : placeholder}</span>
+75:         <motion.svg animate={{ rotate: isOpen ? 180 : 0 }} className="w-3 h-3 text-blue-400 shrink-0 ml-2"
+76:           fill="none" stroke="currentColor" viewBox="0 0 24 24">
+77:           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+78:         </motion.svg>
+79:       </div>
+80:       {isOpen && createPortal(
+81:         <AnimatePresence>
+82:           <motion.ul ref={menuRef} style={{ ...menuStyle, maxHeight:320, overflowY:"auto" }}
+83:             initial={{ opacity:0, y:-6, scale:0.97 }} animate={{ opacity:1, y:0, scale:1 }}
+84:             exit={{ opacity:0, y:-6, scale:0.97 }} transition={{ duration:0.15, ease:"easeOut" }}
+85:             className="bg-[#0a1a3a] backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden shadow-2xl"
+86:             >
+87:             {options.map((opt, i) => (
+88:               <motion.li key={opt.value} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }}
+89:                 transition={{ delay: Math.min(i*0.02, 0.3) }}
+90:                 onMouseDown={e => { e.preventDefault(); onChange(opt.value); setIsOpen(false); }}
+91:                 className={`px-4 py-2.5 cursor-pointer text-sm transition-colors ${value===opt.value ? "bg-blue-600/40 text-white" : "text-gray-300 hover:bg-white/10"}`}>
+92:                 {opt.label}
+93:               </motion.li>
+94:             ))}
+95:           </motion.ul>
+96:         </AnimatePresence>,
+97:         document.body
+98:       )}
+99:     </div>
+100:   );
+101: };
+102: 
+103: // Live Clock 
+104: const LiveClock = () => {
+105:   const [now, setNow] = useState(new Date());
+106:   useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
+107:   const DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+108:   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+109:   const hh = String(now.getHours()).padStart(2,"0");
+110:   const mm = String(now.getMinutes()).padStart(2,"0");
+111:   const ss = String(now.getSeconds()).padStart(2,"0");
+112:   return (
+113:     <div className="text-center mb-5">
+114:       <div className="text-3xl md:text-4xl font-mono font-bold tracking-widest text-white"
+115:         style={{ textShadow:"0 0 24px rgba(96,165,250,0.55)" }}>
+116:         {hh}<span className="animate-pulse text-blue-400">:</span>
+117:         {mm}<span className="animate-pulse text-blue-400">:</span>{ss}
+118:       </div>
+119:       <div className="text-xs tracking-[0.25em] uppercase text-slate-400 mt-1">
+120:         {DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}
+121:       </div>
+122:     </div>
+123:   );
+124: };
+125: 
+126: // Admin Login Modal
+127: const LoginModal = ({ onLogin, onClose }) => {
+128:   const [user, setUser]   = useState("");
+129:   const [pass, setPass]   = useState("");
+130:   const [err, setErr]     = useState("");
+131:   const [shake, setShake] = useState(false);
+132:   const attempt = () => {
+133:     if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) { onLogin(); }
+134:     else { setErr("Invalid credentials."); setShake(true); setTimeout(() => setShake(false), 500); }
+135:   };
+136:   return createPortal(
+137:     <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+138:       className="fixed inset-0 z-9999 flex items-center justify-center bg-black/70 backdrop-blur-md px-4"
+139:       onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
+140:       <motion.div initial={{ scale:0.9, y:20 }}
+141:         animate={shake ? { x:[-8,8,-6,6,0] } : { scale:1, y:0 }}
+142:         transition={shake ? { duration:0.4 } : { type:"spring", stiffness:260, damping:20 }}
+143:         className="bg-[#060f28] border border-blue-500/20 p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+144:         <div className="text-center mb-6">
+145:           <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-3 text-xl">🔐</div>
+146:           <h2 className="text-lg font-bold tracking-widest uppercase text-white">Admin Login</h2>
+147:           <p className="text-xs text-slate-500 mt-1 tracking-wider">Supervisor access required</p>
+148:         </div>
+149:         <div className="space-y-3">
+150:           <input className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
+151:             placeholder="Username" value={user} onChange={e=>setUser(e.target.value)} onKeyDown={e=>e.key==="Enter"&&attempt()} autoFocus />
+152:           <input type="password" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
+153:             placeholder="Password" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&attempt()} />
+154:           {err && <p className="text-xs text-red-400 text-center tracking-wide">{err}</p>}
+155:           <button onClick={attempt} className="w-full mt-2 bg-blue-600 hover:bg-blue-500 py-2.5 rounded-lg font-bold uppercase text-xs tracking-widest transition-all text-white">Authenticate</button>
+156:           <button onClick={onClose} className="w-full py-2 rounded-lg bg-white/5 text-xs font-bold uppercase tracking-widest text-slate-400 hover:bg-white/10 transition-all">Cancel</button>
+157:         </div>
+158:       </motion.div>
+159:     </motion.div>,
+160:     document.body
+161:   );
+162: };
+163: 
+164: // Supabase helper 
+165: async function supabaseFetch(path, options = {}) {
+166:   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+167:     headers: { apikey:SUPABASE_ANON_KEY, Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
+168:                "Content-Type":"application/json", Prefer:"return=representation" },
+169:     ...options,
+170:   });
+171:   if (!res.ok) { const err = await res.text(); throw new Error(err); }
+172:   return res.json();
+173: }
+174: 
+175: // Today's date key (SGT YYYY-MM-DD) used for daily status reset 
+176: function todaySGT() {
+177:   const now = new Date();
+178:   const sg  = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
+179:   return `${sg.getFullYear()}-${String(sg.getMonth()+1).padStart(2,"0")}-${String(sg.getDate()).padStart(2,"0")}`;
+180: }
+181: 
+182: // Status options 
+183: const STATUS_OPTIONS = [
+184:   { value:"pending", label:"— Haven't selected yet today —", color:"bg-white/5",       glow:""                                                                   },
+185:   { value:"in",     label:"✅ In",                           color:"bg-emerald-500/20", glow:"shadow-[0_0_12px_rgba(52,211,153,0.4)]"  },
+186:   { value:"late",   label:"🕐 Late",                         color:"bg-amber-500/20",   glow:"shadow-[0_0_12px_rgba(251,191,36,0.4)]"  },
+187:   { value:"duty",   label:"🚨 On Duty",                      color:"bg-orange-500/20",  glow:"shadow-[0_0_12px_rgba(249,115,22,0.4)]"  },
+188:   { value:"course", label:"👨‍🎓 On Course until...",          color:"bg-sky-500/20",     glow:"shadow-[0_0_12px_rgba(14,165,233,0.4)]"  },
+189:   { value:"rso",    label:"📋 RSO / RSI until...",           color:"bg-violet-500/20",  glow:"shadow-[0_0_12px_rgba(139,92,246,0.4)]"  },
+190:   { value:"mc",     label:"🏥 MC until...",                   color:"bg-red-500/20",     glow:"shadow-[0_0_12px_rgba(239,68,68,0.4)]"   },
+191:   { value:"others", label:"📝 Others",                        color:"bg-slate-500/20",   glow:"shadow-[0_0_12px_rgba(100,116,139,0.4)]" },
+192: ];
+193: 
+194: // Date helpers
+195: function fmtDateDDMMYY(d) {
+196:   if (!d) return "??";
+197:   const [y, m, day] = d.split("-");
+198:   return `${day}${m}${y.slice(2)}`;
+199: }
+200: function fmtDateSlash(d) {
+201:   if (!d) return "??";
+202:   const [y, m, day] = d.split("-");
+203:   return `${day}/${m}/${y}`;
+204: }
+205: function daysBetween(startISO, endISO) {
+206:   if (!startISO || !endISO) return null;
+207:   const s = new Date(startISO), e = new Date(endISO);
+208:   return Math.round((e - s) / 86400000) + 1;
+209: }
+210: 
+211: // Summary 
+212: function generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, courseStartDates, courseNames, statusTexts, permTypes, othersNotes) {
+213:   const now  = new Date();
+214:   const sg   = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
+215:   const dd   = String(sg.getDate()).padStart(2,"0");
+216:   const mo   = String(sg.getMonth()+1).padStart(2,"0");
+217:   const yy   = String(sg.getFullYear()).slice(2);
+218:   const hh   = String(sg.getHours()).padStart(2,"0");
+219:   const mi   = String(sg.getMinutes()).padStart(2,"0");
+220: 
+221:   const pres     = p => isPresent(p, statuses);
+222:   const total    = personnel.length;
+223:   const presTotal= personnel.filter(pres).length;
+224: 
+225:   const officers      = personnel.filter(p => isOfficer(p));
+226:   const woses         = personnel.filter(p => !isOfficer(p));
+227:   const commanders    = personnel.filter(p => isCommander(p));
+228:   const supportStaff  = personnel.filter(p => isSupportStaff(p));
+229:   const dxo           = personnel.filter(p => isDXO(p));
+230: 
+231:   const lines = [];
+232:   lines.push(`HQ COY PARADE STRENGTH CAA ${dd}${mo}${yy} ${hh}${mi}HRS\n`);
+233:   lines.push(`Grand Total: ${presTotal}/${total}`);
+234:   lines.push(`Total Officer: ${officers.filter(pres).length}/${officers.length}`);
+235:   lines.push(`Total WOSE: ${woses.filter(pres).length}/${woses.length}\n`);
+236:   lines.push(`Total Commander: ${commanders.filter(pres).length}/${commanders.length}`);
+237:   lines.push(`Total WOSE (PTE,LCP,CPL,CFC): ${supportStaff.filter(pres).length}/${supportStaff.length}\n`);
+238:   lines.push(`Personnel on DB/AWOL/CC/CA: 0`);
+239:   lines.push("-------------------------------");
+240: 
+241:   BRANCHES.forEach(branch => {
+242:     const members = personnel.filter(p => (p.branch||"Not assigned yet") === branch);
+243:     if (!members.length) return;
+244:     const brOfficers = members.filter(p => isOfficer(p));
+245:     const brWoses    = members.filter(p => !isOfficer(p));
+246:     const brCmdr     = members.filter(p => isCommander(p));
+247:     const brSupport  = members.filter(p => isSupportStaff(p));
+248:     const brDxos     = members.filter(p => isDXO(p));
+249: 
+250:     lines.push(branch.toUpperCase());
+251:     lines.push(`TOTAL STRENGTH: ${members.filter(pres).length}/${members.length}\n`);
+252:     if (brOfficers.length) {
+253:       lines.push(`OFFICER: ${brOfficers.filter(pres).length}/${brOfficers.length}`);
+254:       brOfficers.forEach((p,i) => lines.push(`${i+1}. ${p.rank} ${p.name}${pres(p)?"✅":"❌"}`));
+255:     }
+256:     if (brWoses.length) {
+257:       lines.push(`\nWOSE: ${brWoses.filter(pres).length}/${brWoses.length}`);
+258:       brWoses.forEach((p,i) => lines.push(`${i+1}. ${p.rank} ${p.name}${pres(p)?"✅":"❌"}`));
+259:     }
+260: 
+261:     lines.push(`\nCommander: ${brCmdr.filter(pres).length}/${brCmdr.length}`);
+262:     lines.push(`WOSE (PTE,LCP,CPL,CFC): ${brSupport.filter(pres).length}/${brSupport.length}\n`);
+263:     lines.push("-------------------------------");
+264:   });
+265: 
+266:   // MC
+267:   const mcList = personnel.filter(p => (statuses[p.id]||"in")==="mc");
+268:   lines.push(`😷MC: ${String(mcList.length).padStart(2,"0")}`);
+269:   mcList.forEach((p,i) => {
+270:     const note = statusTexts[p.id]||"";
+271:     const end  = mcDates[p.id] ? `until ${fmtDateDDMMYY(mcDates[p.id])}` : "";
+272:     lines.push(`${i+1}. ${p.rank} ${p.name} (${[end,note].filter(Boolean).join(", ")})\n`);
+273:   });
+274: 
+275:   // RSO/RSI
+276:   const rsoList = personnel.filter(p => (statuses[p.id]||"in")==="rso");
+277:   if (rsoList.length) {
+278:     lines.push(`📋RSO/RSI: ${String(rsoList.length).padStart(2,"0")}`);
+279:     rsoList.forEach((p,i) => {
+280:       const note = statusTexts[p.id]||"";
+281:       const end  = rsoDates[p.id] ? `until ${fmtDateDDMMYY(rsoDates[p.id])}` : "";
+282:       lines.push(`${i+1}. ${p.rank} ${p.name} (${[end,note].filter(Boolean).join(", ")})\n`);
+283:     });
+284:   }
+285: 
+286:   // On Course — format: PTE BRENDON (4 days, 06/03/2026-09/03/2026, ASCC)
+287:   const courseList = personnel.filter(p => (statuses[p.id]||"in")==="course");
+288:   if (courseList.length) {
+289:     lines.push(`👨‍🎓ON COURSE: ${String(courseList.length).padStart(2,"0")}`);
+290:     courseList.forEach((p,i) => {
+291:       const start   = courseStartDates[p.id]||"";
+292:       const end     = courseDates[p.id]||"";
+293:       const cname   = courseNames[p.id]||"";
+294:       const days    = daysBetween(start, end);
+295:       const range   = (start && end) ? `${fmtDateSlash(start)}-${fmtDateSlash(end)}` : "";
+296:       const parts   = [days ? `${days} days` : "", range, cname].filter(Boolean);
+297:       lines.push(`${i+1}. ${p.rank} ${p.name}${parts.length ? ` (${parts.join(", ")})` : ""}\n`);
+298:     });
+299:   }
+300: 
+301:   // On Duty
+302:   const dutyList = personnel.filter(p => (statuses[p.id]||"in")==="duty");
+303:   if (dutyList.length) {
+304:     lines.push(`🚨ON DUTY: ${String(dutyList.length).padStart(2,"0")}`);
+305:     dutyList.forEach((p,i) => {
+306:       const note = statusTexts[p.id]||"";
+307:       lines.push(`${i+1}. ${p.rank} ${p.name}${note ? ` (${note})` : ""}\n`);
+308:     });
+309:   }
+310: 
+311:   // Late
+312:   const lateList = personnel.filter(p => (statuses[p.id]||"in")==="late");
+313:   if (lateList.length) {
+314:     lines.push(`🕐LATE: ${String(lateList.length).padStart(2,"0")}`);
+315:     lateList.forEach((p,i) => {
+316:       const note = statusTexts[p.id]||"";
+317:       lines.push(`${i+1}. ${p.rank} ${p.name}${note ? ` (${note})` : ""}`);
+318:     });
+319:   }
+320: 
+321:   // Others
+322:   const othersList = personnel.filter(p => (statuses[p.id]||"in")==="others");
+323:   if (othersList.length) {
+324:     lines.push(`📝OTHERS: ${String(othersList.length).padStart(2,"0")}`);
+325:     othersList.forEach((p,i) => {
+326:       const desc = othersNotes[p.id]||statusTexts[p.id]||"-";
+327:       lines.push(`${i+1}. ${p.rank} ${p.name} (${desc})`);
+328:     });
+329:   }
+330: 
+331:   // STATUS
+332:   const permList = personnel.filter(p => permTypes[p.id]==="permanent");
+333:   const tempList = personnel.filter(p => permTypes[p.id]==="temporary");
+334:   const totalStatus = permList.length + tempList.length;
+335:   if (totalStatus > 0) {
+336:     lines.push(`🚷STATUS: ${totalStatus}`);
+337:     if (permList.length) {
+338:       lines.push(`Permanent: ${String(permList.length).padStart(2,"0")}`);
+339:       permList.forEach((p,i) => {
+340:         const txt = statusTexts[p.id]||"";
+341:         lines.push(`${i+1}. ${p.rank} ${p.name}${txt ? ` (${txt})` : ""}`);
+342:       });
+343:     }
+344:     if (tempList.length) {
+345:       lines.push(`Temporary: ${String(tempList.length).padStart(2,"0")}`);
+346:       tempList.forEach((p,i) => {
+347:         const txt = statusTexts[p.id]||"";
+348:         lines.push(`${i+1}. ${p.rank} ${p.name}${txt ? ` (${txt})` : ""}`);
+349:       });
+350:     }
+351:   }
+352: 
+353:   return lines.join("\n");
+354: }
+355: 
+356: // Personnel Card 
+357: function PersonnelCard({ p, isAdmin, status, mcDate, rsoDate, courseDate, courseStartDate, courseName,
+358:   statusText, permType, othersNote,
+359:   onStatusChange, onMcDate, onRsoDate, onCourseDate, onCourseStartDate, onCourseName,
+360:   onStatusText, onPermType, onOthersNote, onDelete,
+361:   dragHandleProps,
+362:   onEditSave,
+363: }) {
+364: 
+365:   const [editing,   setEditing]   = useState(false);
+366:   const [editRank,  setEditRank]  = useState(p.rank);
+367:   const [editName,  setEditName]  = useState(p.name);
+368: 
+369:   const cur = STATUS_OPTIONS.find(o => o.value === status) || STATUS_OPTIONS[0];
+370:   const hasBadge = statusText || (status==="others" && othersNote);
+371: 
+372:   function saveEdit() {
+373:     if (!editName.trim()) return;
+374:     onEditSave(p.id, editRank, editName.trim());
+375:     setEditing(false);
+376:   }
+377: 
+378:   return (
+379:     <div className={`relative rounded-xl border border-white/5 bg-white/3 backdrop-blur-sm transition-all hover:border-white/15 ${cur.glow}`}>
+380:       <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-4 p-4">
+381: 
+382:         {/* Identity */}
+383:         <div className="flex items-center gap-3 pt-0.5">
+384:           {/* Drag handle — admin only */}
+385:           {isAdmin && (
+386:             <div {...dragHandleProps}
+387:               className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-400 shrink-0 px-0.5 select-none"
+388:               title="Drag to reorder">
+389:               ⠿
+390:             </div>
+391:           )}
+392: 
+393:           {editing ? (
+394:             <div className="flex items-center gap-2 flex-1 flex-wrap">
+395:               <AnimatedSelect
+396:                 options={ALL_RANKS.map(r => ({ value:r, label:r }))}
+397:                 value={editRank}
+398:                 onChange={setEditRank}
+399:                 placeholder="Rank"
+400:                 customStyles="!w-24 text-xs"
+401:               />
+402:               <input
+403:                 className="flex-1 min-w-24 bg-black/20 border border-white/20 rounded-lg px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500/50"
+404:                 value={editName}
+405:                 onChange={e => setEditName(e.target.value)}
+406:                 onKeyDown={e => { if (e.key==="Enter") saveEdit(); if (e.key==="Escape") setEditing(false); }}
+407:                 autoFocus
+408:               />
+409:               <button onClick={saveEdit} className="px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold uppercase">Save</button>
+410:               <button onClick={() => setEditing(false)} className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase">Cancel</button>
+411:             </div>
+412:           ) : (
+413:             <>
+414:               <span className="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] font-bold text-blue-400 uppercase shrink-0">{p.rank}</span>
+415:               <span className="text-base font-medium tracking-tight text-slate-100">{p.name}</span>
+416:               {isAdmin && (
+417:                 <button onClick={() => { setEditRank(p.rank); setEditName(p.name); setEditing(true); }}
+418:                   className="ml-1 p-1 rounded text-slate-600 hover:text-blue-400 transition-colors shrink-0 text-xs" title="Edit rank / name">
+419:                   ✏️
+420:                 </button>
+421:               )}
+422:             </>
+423:           )}
+424:         </div>
+425: 
+426:         {/* Controls */}
+427:         <div className="flex flex-col gap-2">
+428: 
+429:           {/* Dropdown + date pickers */}
+430:           <div className="flex items-center gap-2 flex-wrap">
+431:             <div className="flex-1 min-w-35">
+432:               <AnimatedSelect options={STATUS_OPTIONS} value={status} onChange={v => onStatusChange(p.id, v)} customStyles={cur.color} />
+433:             </div>
+434:             {status==="mc"     && <input type="date" className="bg-red-500/10 border border-red-500/20 rounded-lg px-2 py-2 text-xs text-red-300 outline-none shrink-0"     value={mcDate||""}          onChange={e=>onMcDate(p.id,e.target.value)} />}
+435:             {status==="rso"    && <input type="date" className="bg-violet-500/10 border border-violet-500/20 rounded-lg px-2 py-2 text-xs text-violet-300 outline-none shrink-0" value={rsoDate||""}     onChange={e=>onRsoDate(p.id,e.target.value)} />}
+436:             {isAdmin && <button onClick={()=>onDelete(p.id)} className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors shrink-0">✕</button>}
+437:           </div>
+438: 
+439:           {/* Course fields: start date, end date, course name */}
+440:           {status==="course" && (
+441:             <div className="flex flex-col gap-1.5 pl-0">
+442:               <div className="flex items-center gap-2">
+443:                 <span className="text-[10px] uppercase tracking-widest text-slate-500 shrink-0 w-16">Start</span>
+444:                 <input type="date" className="flex-1 bg-sky-500/10 border border-sky-500/20 rounded-lg px-2 py-1.5 text-xs text-sky-300 outline-none"
+445:                   value={courseStartDate||""} onChange={e=>onCourseStartDate(p.id,e.target.value)} />
+446:               </div>
+447:               <div className="flex items-center gap-2">
+448:                 <span className="text-[10px] uppercase tracking-widest text-slate-500 shrink-0 w-16">End</span>
+449:                 <input type="date" className="flex-1 bg-sky-500/10 border border-sky-500/20 rounded-lg px-2 py-1.5 text-xs text-sky-300 outline-none"
+450:                   value={courseDate||""} onChange={e=>onCourseDate(p.id,e.target.value)} />
+451:               </div>
+452:               <div className="flex items-center gap-2">
+453:                 <span className="text-[10px] uppercase tracking-widest text-slate-500 shrink-0 w-16">Course</span>
+454:                 <input type="text" placeholder="e.g. ASCC, BTC..." className="flex-1 bg-sky-500/10 border border-sky-500/20 rounded-lg px-3 py-1.5 text-xs text-sky-200 placeholder-sky-900 outline-none focus:border-sky-400/50"
+455:                   value={courseName||""} onChange={e=>onCourseName(p.id,e.target.value)} />
+456:               </div>
+457:             </div>
+458:           )}
+459: 
+460:           {/* Others description */}
+461:           {status==="others" && (
+462:             <div className="flex items-start gap-2">
+463:               <span className="text-[10px] uppercase tracking-widest text-slate-500 shrink-0 w-12 pt-2">Desc</span>
+464:               <textarea rows={2} placeholder="Describe the situation..."
+465:                 value={othersNote} onChange={e=>onOthersNote(p.id,e.target.value)}
+466:                 className="flex-1 bg-slate-500/10 border border-slate-500/20 rounded-lg px-3 py-1.5 text-xs text-slate-300 placeholder-slate-600 outline-none focus:border-slate-400/40 transition-all resize-none" />
+467:             </div>
+468:           )}
+469: 
+470:           {/* Status text + Permanent/Temporary */}
+471:           <div className="flex flex-col gap-1.5">
+472:             <div className="flex items-center gap-2">
+473:               <span className="text-[10px] uppercase tracking-widest text-slate-500 shrink-0 w-12">Status</span>
+474:               <div className="relative flex-1">
+475:                 <input type="text" placeholder="e.g. EX. FLEGS; LD 84 days 021225-230226"
+476:                   value={statusText} onChange={e=>onStatusText(p.id,e.target.value)}
+477:                   className="w-full bg-white/3 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-300 placeholder-slate-600 outline-none focus:border-blue-500/30 focus:bg-white/5 transition-all pr-7" />
+478:                 {statusText && (
+479:                   <button onMouseDown={e=>{e.preventDefault();onStatusText(p.id,"");}}
+480:                     className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 text-[10px]">✕</button>
+481:                 )}
+482:               </div>
+483:               {statusText && (
+484:                 <div className="flex gap-1 shrink-0">
+485:                   {["permanent","temporary"].map(opt => (
+486:                     <button key={opt} onMouseDown={e=>{e.preventDefault();onPermType(p.id,permType===opt?"":opt);}}
+487:                       className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide transition-all border ${
+488:                         permType===opt
+489:                           ? opt==="permanent" ? "bg-amber-500/30 border-amber-400/40 text-amber-300" : "bg-sky-500/30 border-sky-400/40 text-sky-300"
+490:                           : "bg-white/5 border-white/10 text-slate-500 hover:text-slate-300"
+491:                       }`}>
+492:                       {opt==="permanent" ? "Perm" : "Temp"}
+493:                     </button>
+494:                   ))}
+495:                 </div>
+496:               )}
+497:             </div>
+498:             {statusText && permType && (
+499:               <div className="pl-14">
+500:                 <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border ${
+501:                   permType==="permanent" ? "bg-amber-500/15 border-amber-400/30 text-amber-300" : "bg-sky-500/15 border-sky-400/30 text-sky-300"
+502:                 }`}>
+503:                   {permType==="permanent" ? "🔒 Permanent" : "⏳ Temporary"}
+504:                 </span>
+505:               </div>
+506:             )}
+507:           </div>
+508:         </div>
+509:       </div>
+510: 
+511:       {hasBadge && (
+512:         <div className="px-4 pb-3 flex flex-wrap gap-2 -mt-1">
+513:           {statusText && (
+514:             <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-400 bg-white/5 border border-white/10 rounded-md px-2.5 py-1">
+515:               <span className="text-yellow-400/80">🚷</span> {statusText}
+516:               {permType && <span className={`ml-1 text-[10px] px-1.5 py-0.5 rounded ${permType==="permanent"?"bg-amber-500/20 text-amber-300":"bg-sky-500/20 text-sky-300"}`}>{permType}</span>}
+517:             </span>
+518:           )}
+519:           {status==="others" && othersNote && (
+520:             <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-300 bg-slate-500/10 border border-slate-500/20 rounded-md px-2.5 py-1">
+521:               <span className="text-slate-400">ℹ️</span> {othersNote}
+522:             </span>
+523:           )}
+524:         </div>
+525:       )}
+526:     </div>
+527:   );
+528: }
+529: 
+530: // Main Component 
+531: export default function AttendanceTracker() {
+532:   const [personnel,        setPersonnel]        = useState([]);
+533:   const [statuses,         setStatuses]         = useState({});
+534:   const [mcDates,          setMcDates]          = useState({});
+535:   const [rsoDates,         setRsoDates]         = useState({});
+536:   const [courseDates,      setCourseDates]      = useState({});
+537:   const [courseStartDates, setCourseStartDates] = useState({});
+538:   const [courseNames,      setCourseNames]      = useState({});
+539:   const [statusTexts,      setStatusTexts]      = useState({});
+540:   const [permTypes,        setPermTypes]        = useState({});
+541:   const [othersNotes,      setOthersNotes]      = useState({});
+542:   const [loading,          setLoading]          = useState(true);
+543: 
+544:   const [isAdmin,    setIsAdmin]    = useState(false);
+545:   const [showLogin,  setShowLogin]  = useState(false);
+546:   const [showAdmin,  setShowAdmin]  = useState(false);
+547: 
+548:   // drag state
+549:   const dragItem    = useRef(null);
+550:   const dragOverItem= useRef(null);
+551: 
+552:   // add-form state
+553:   const [newRank,   setNewRank]   = useState("PTE");
+554:   const [newName,   setNewName]   = useState("");
+555:   const [newBranch, setNewBranch] = useState("Not assigned yet");
+556:   const [newRole,   setNewRole]   = useState("wose");
+557:   const [adding,    setAdding]    = useState(false);
+558:   const [deleteId,  setDeleteId]  = useState(null);
+559: 
+560:   // fetch 
+561:   async function fetchPersonnel() {
+562:     try {
+563:       const data = await supabaseFetch("personnel?select=*&order=sort_order.asc,created_at.asc");
+564:       setPersonnel(data);
+565:       const iS={},iM={},iR={},iC={},iCS={},iCN={},iT={},iP={},iO={};
+566:       data.forEach(p => {
+567:         iS[p.id]  = p.status              || "pending";
+568:         iM[p.id]  = p.mc_end_date         || "";
+569:         iR[p.id]  = p.rso_end_date        || "";
+570:         iC[p.id]  = p.course_end_date     || "";
+571:         iCS[p.id] = p.course_start_date   || "";
+572:         iCN[p.id] = p.course_name         || "";
+573:         iT[p.id]  = p.status_text         || "";
+574:         iP[p.id]  = p.perm_type           || "";
+575:         iO[p.id]  = p.others_note         || "";
+576:       });
+577:       setStatuses(iS); setMcDates(iM); setRsoDates(iR); setCourseDates(iC);
+578:       setCourseStartDates(iCS); setCourseNames(iCN);
+579:       setStatusTexts(iT); setPermTypes(iP); setOthersNotes(iO);
+580:     } catch(e) { console.error(e); }
+581:     finally { setLoading(false); }
+582:   }
+583: 
+584:   useEffect(() => { fetchPersonnel(); }, []);
+585: 
+586:   const grouped = BRANCHES.reduce((acc, b) => {
+587:     acc[b] = personnel.filter(p => (p.branch||"Not assigned yet") === b);
+588:     return acc;
+589:   }, {});
+590: 
+591:   //  patch helper 
+592:   const patch = async (id, body) => {
+593:     try { await supabaseFetch(`personnel?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(body) }); }
+594:     catch(e) { console.error(e); }
+595:   };
+596: 
+597:   const hStatusChange    = (id,v) => { setStatuses(p=>({...p,[id]:v}));           patch(id,{status:v}); };
+598:   const hMcDate          = (id,v) => { setMcDates(p=>({...p,[id]:v}));             patch(id,{mc_end_date:v}); };
+599:   const hRsoDate         = (id,v) => { setRsoDates(p=>({...p,[id]:v}));            patch(id,{rso_end_date:v}); };
+600:   const hCourseDate      = (id,v) => { setCourseDates(p=>({...p,[id]:v}));         patch(id,{course_end_date:v}); };
+601:   const hCourseStartDate = (id,v) => { setCourseStartDates(p=>({...p,[id]:v}));    patch(id,{course_start_date:v}); };
+602:   const hCourseName      = (id,v) => { setCourseNames(p=>({...p,[id]:v}));         patch(id,{course_name:v}); };
+603:   const hStatusText      = (id,v) => { setStatusTexts(p=>({...p,[id]:v}));         patch(id,{status_text:v}); };
+604:   const hPermType        = (id,v) => { setPermTypes(p=>({...p,[id]:v}));           patch(id,{perm_type:v}); };
+605:   const hOthersNote      = (id,v) => { setOthersNotes(p=>({...p,[id]:v}));         patch(id,{others_note:v}); };
+606: 
+607:   async function handleAddPersonnel() {
+608:     if (!newName.trim()) return;
+609:     setAdding(true);
+610:     try {
+611:       const data = await supabaseFetch("personnel", {
+612:         method:"POST",
+613:         body: JSON.stringify({ rank:newRank, name:newName.trim(), branch:newBranch, role:newRole, status:"pending" }),
+614:       });
+615:       const np = data[0];
+616:       setPersonnel(prev => [...prev, np]);
+617:       ["statuses","statusTexts","permTypes","othersNotes"].forEach(() => {});
+618:       setStatuses(p=>({...p,[np.id]:"pending"})); setStatusTexts(p=>({...p,[np.id]:""}));
+619:       setPermTypes(p=>({...p,[np.id]:""}));  setOthersNotes(p=>({...p,[np.id]:""}));
+620:       setCourseNames(p=>({...p,[np.id]:""})); setCourseStartDates(p=>({...p,[np.id]:""}));
+621:       setNewName(""); setNewRank("PTE"); setNewRole("wose");
+622:     } catch(e) { alert("Error adding personnel."); }
+623:     finally { setAdding(false); }
+624:   }
+625: 
+626:   async function handleDelete(id) {
+627:     try { await supabaseFetch(`personnel?id=eq.${id}`,{method:"DELETE"}); setPersonnel(prev=>prev.filter(p=>p.id!==id)); }
+628:     catch(e) { console.error(e); }
+629:     setDeleteId(null);
+630:   }
+631: 
+632:   // Midnight daily reset (statuses → "pending")
+633:   useEffect(() => {
+634:     // Check once on load: if stored date ≠ today, reset all statuses to "pending"
+635:     const stored = localStorage.getItem("attendance_date");
+636:     const today  = todaySGT();
+637:     if (stored && stored !== today) {
+638:       // Reset all in-memory statuses to pending
+639:       setStatuses(prev => {
+640:         const next = { ...prev };
+641:         Object.keys(next).forEach(id => { next[id] = "pending"; });
+642:         return next;
+643:       });
+644:       // Batch-reset in Supabase — update all personnel status to pending
+645:       supabaseFetch("personnel?status=neq.pending", {
+646:         method: "PATCH",
+647:         body: JSON.stringify({ status: "pending" }),
+648:       }).catch(console.error);
+649:     }
+650:     localStorage.setItem("attendance_date", today);
+651: 
+652:     // Schedule a timer for exactly midnight SGT
+653:     function scheduleReset() {
+654:       const now  = new Date();
+655:       const sg   = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
+656:       const msUntilMidnight = (
+657:         (23 - sg.getHours()) * 3600000 +
+658:         (59 - sg.getMinutes()) * 60000 +
+659:         (60 - sg.getSeconds()) * 1000
+660:       );
+661:       return setTimeout(() => {
+662:         setStatuses(prev => {
+663:           const next = { ...prev };
+664:           Object.keys(next).forEach(id => { next[id] = "pending"; });
+665:           return next;
+666:         });
+667:         supabaseFetch("personnel", {
+668:           method: "PATCH",
+669:           body: JSON.stringify({ status: "pending" }),
+670:         }).catch(console.error);
+671:         localStorage.setItem("attendance_date", todaySGT());
+672:         scheduleReset(); // reschedule for next midnight
+673:       }, msUntilMidnight);
+674:     }
+675:     const t = scheduleReset();
+676:     return () => clearTimeout(t);
+677:   // eslint-disable-next-line react-hooks/exhaustive-deps
+678:   }, []);
+679: 
+680:   // Inline edit (rank + name) 
+681:   async function handleEditSave(id, rank, name) {
+682:     setPersonnel(prev => prev.map(p => p.id===id ? { ...p, rank, name } : p));
+683:     try { await supabaseFetch(`personnel?id=eq.${id}`, { method:"PATCH", body:JSON.stringify({ rank, name }) }); }
+684:     catch(e) { console.error(e); }
+685:   }
+686: 
+687:   // Drag-to-reorder (within same role-group within same branch)
+688:   function handleDragStart(id, groupKey) {
+689:     dragItem.current = { id, groupKey };
+690:   }
+691:   function handleDragEnter(id, groupKey) {
+692:     dragOverItem.current = { id, groupKey };
+693:   }
+694:   function handleDragEnd() {
+695:     const from = dragItem.current;
+696:     const to   = dragOverItem.current;
+697:     if (!from || !to || from.id === to.id || from.groupKey !== to.groupKey) {
+698:       dragItem.current = null; dragOverItem.current = null; return;
+699:     }
+700:     setPersonnel(prev => {
+701:       const next = [...prev];
+702:       const fromIdx = next.findIndex(p => p.id === from.id);
+703:       const toIdx   = next.findIndex(p => p.id === to.id);
+704:       if (fromIdx === -1 || toIdx === -1) return prev;
+705:       const [moved] = next.splice(fromIdx, 1);
+706:       next.splice(toIdx, 0, moved);
+707:       // Persist sort order: assign sequential sort_order within the new array
+708:       const updates = next.map((p, i) => ({ id: p.id, sort_order: i }));
+709:       updates.forEach(({ id, sort_order }) => {
+710:         supabaseFetch(`personnel?id=eq.${id}`, { method:"PATCH", body:JSON.stringify({ sort_order }) }).catch(console.error);
+711:       });
+712:       return next;
+713:     });
+714:     dragItem.current = null; dragOverItem.current = null;
+715:   }
+716: 
+717:   // extract 
+718:   function handleExtract() {
+719:     const txt   = generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, courseStartDates, courseNames, statusTexts, permTypes, othersNotes);
+720:     const now   = new Date();
+721:     const sg    = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
+722:     const fname = `CAA_${String(sg.getDate()).padStart(2,"0")}${String(sg.getMonth()+1).padStart(2,"0")}${String(sg.getFullYear()).slice(2)}_${String(sg.getHours()).padStart(2,"0")}${String(sg.getMinutes()).padStart(2,"0")}.txt`;
+723:     const blob  = new Blob([txt], {type:"text/plain;charset=utf-8"});
+724:     const url   = URL.createObjectURL(blob);
+725:     const a     = document.createElement("a");
+726:     a.href=url; a.download=fname; a.click(); URL.revokeObjectURL(url);
+727:   }
+728: 
+729:   // stats 
+730:   const presCount   = personnel.filter(p => isPresent(p, statuses)).length;
+731:   const absentCount = personnel.length - presCount;
+732: 
+733:   // For the stat pills we also want Officer/WOSE totals
+734:   const allOfficers = personnel.filter(p => isOfficer(p));
+735:   const allWoses    = personnel.filter(p => !isOfficer(p));
+736: 
+737:   // render 
+738:   return (
+739:     <div className="min-h-screen bg-[#050d1a] text-slate-200 font-sans pb-20 overflow-x-hidden">
+740:       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_20%_10%,rgba(0,80,160,0.5)_0%,transparent_55%)]" />
+741:       {/* <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_90%_90%,rgba(0,110,255,0.2)_0%,transparent_60%)]" /> */}
+742:       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_90%_10%,rgba(255,220,80,0.25)_0%,rgba(255,220,80,0.12)_0.1%,transparent_90%)]" />
+743: 
+744:       <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
+745: 
+746:         {/* ── Top bar ── */}
+747:         <div className="flex justify-between items-center mb-4">
+748:           <button onClick={handleExtract}
+749:             className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-bold tracking-widest uppercase hover:bg-emerald-500/20 transition-all">
+750:             📄 Extraction
+751:           </button>
+752:           {isAdmin ? (
+753:             <button onClick={() => { setIsAdmin(false); setShowAdmin(false); }}
+754:               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold tracking-widest uppercase hover:bg-emerald-500/20 transition-all">
+755:               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" style={{boxShadow:"0 0 6px rgba(52,211,153,0.8)"}} />
+756:               Admin — Logout
+757:             </button>
+758:           ) : (
+759:             <button onClick={() => setShowLogin(true)}
+760:               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/20 bg-blue-500/5 text-blue-400/70 text-xs font-bold tracking-widest uppercase hover:bg-blue-500/10 transition-all">
+761:               🔐 Admin Login
+762:             </button>
+763:           )}
+764:         </div>
+765: 
+766:         {/*  Header  */}
+767:         <header className="text-center mb-10">
+768:           <LiveClock />
+769:           <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-linear-to-br from-white to-blue-400 bg-clip-text text-transparent uppercase">
+770:             ATTENDANCE
+771:           </h1>
+772:           <p className="mt-2 text-slate-500 text-sm tracking-[0.2em] uppercase">Status Tracker</p>
+773:         </header>
+774: 
+775:         {/*  Stats pills  */}
+776:         <div className="flex flex-wrap justify-center gap-3 mb-10">
+777:           {[
+778:             { label:`${presCount} Present`,              dot:"bg-emerald-400", sh:"rgba(52,211,153,0.6)"  },
+779:             { label:`${absentCount} Absent`,              dot:"bg-red-400",     sh:"rgba(248,113,113,0.6)" },
+780:             { label:`${personnel.length} Total`,          dot:"bg-blue-400",    sh:"rgba(59,130,246,0.6)"  },
+781:             { label:`${allOfficers.filter(p=>isPresent(p,statuses)).length}/${allOfficers.length} Officer`, dot:"bg-yellow-400", sh:"rgba(250,204,21,0.6)" },
+782:             { label:`${allWoses.filter(p=>isPresent(p,statuses)).length}/${allWoses.length} WOSE`,          dot:"bg-indigo-400", sh:"rgba(129,140,248,0.6)" },
+783:           ].map(({ label, dot, sh }) => (
+784:             <div key={label} className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+785:               <div className={`w-2 h-2 rounded-full ${dot}`} style={{ boxShadow:`0 0 8px ${sh}` }} />
+786:               <span className="text-xs font-semibold tracking-wide">{label}</span>
+787:             </div>
+788:           ))}
+789:         </div>
+790: 
+791:         {/*  Admin add panel  */}
+792:         {isAdmin && (
+793:           <div className="flex justify-end mb-6">
+794:             <button onClick={() => setShowAdmin(!showAdmin)}
+795:               className="px-4 py-2 rounded-lg border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 transition-all text-xs font-bold tracking-widest uppercase text-blue-300">
+796:               {showAdmin ? "✕ Close Panel" : "⊕ Add Personnel"}
+797:             </button>
+798:           </div>
+799:         )}
+800: 
+801:         <AnimatePresence>
+802:           {isAdmin && showAdmin && (
+803:             <motion.div initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-8 }}
+804:               className="relative z-50 mb-8 p-6 rounded-xl bg-blue-900/20 border border-blue-500/20 backdrop-blur-xl">
+805:               <p className="text-[10px] uppercase tracking-[0.3em] text-blue-400/60 mb-4">Add New Personnel</p>
+806: 
+807:               {/* Row 1: Rank dropdown + Name */}
+808:               <div className="grid grid-cols-2 gap-3 mb-3">
+809:                 <AnimatedSelect
+810:                   options={ALL_RANKS.map(r => ({ value:r, label:r }))}
+811:                   value={newRank}
+812:                   onChange={setNewRank}
+813:                   placeholder="Select Rank"
+814:                 />
+815:                 <input className="bg-black/20 border border-white/10 rounded-lg px-4 py-2 outline-none focus:border-blue-500/50 text-sm"
+816:                   placeholder="Full Name" value={newName} onChange={e=>setNewName(e.target.value)}
+817:                   onKeyDown={e=>e.key==="Enter"&&handleAddPersonnel()} />
+818:               </div>
+819: 
+820:               {/* Row 2: Branch + Role */}
+821:               <div className="grid grid-cols-2 gap-3 mb-4">
+822:                 <AnimatedSelect options={BRANCHES.map(b=>({value:b,label:b}))} value={newBranch}
+823:                   onChange={setNewBranch} placeholder="Select Branch" />
+824:                 <div className="flex gap-2">
+825:                   {[{v:"wose", label:"WOSE"},{v:"officer", label:"Officer"}].map(opt => (
+826:                     <button key={opt.v} onClick={() => setNewRole(opt.v)}
+827:                       className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-all ${
+828:                         newRole===opt.v
+829:                           ? opt.v==="officer" ? "bg-yellow-500/25 border-yellow-400/40 text-yellow-300" : "bg-blue-500/25 border-blue-400/40 text-blue-300"
+830:                           : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10"
+831:                       }`}>
+832:                       {opt.label}
+833:                     </button>
+834:                   ))}
+835:                 </div>
+836:               </div>
+837: 
+838:               <button onClick={handleAddPersonnel} disabled={adding||!newName.trim()}
+839:                 className="w-full bg-blue-600 hover:bg-blue-500 py-2.5 rounded-lg font-bold uppercase text-xs tracking-widest transition-all disabled:opacity-40">
+840:                 {adding ? "Adding..." : `Add ${newRank} ${newName||"…"} to ${newBranch} as ${newRole==="officer"?"Officer":"WOSE"}`}
+841:               </button>
+842:             </motion.div>
+843:           )}
+844:         </AnimatePresence>
+845: 
+846:         {/*  Personnel list  */}
+847:         <div className="space-y-10">
+848:           {loading ? (
+849:             <div className="text-center py-20 animate-pulse text-slate-500 uppercase tracking-widest text-xs">Loading Directory...</div>
+850:           ) : (
+851:             BRANCHES.map(branch => {
+852:               const members  = grouped[branch];
+853:               if (!members?.length) return null;
+854: 
+855:               const officers = members.filter(p => isOfficer(p));
+856:               const woses    = members.filter(p => !isOfficer(p));
+857: 
+858:               return (
+859:                 <div key={branch} className="space-y-5">
+860:                   {/* Branch heading */}
+861:                   <h2 className="flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-blue-400/60">
+862:                     <span>{branch}</span>
+863:                     <div className="h-px w-full bg-linear-to-r from-blue-500/30 to-transparent" />
+864:                     <span className="shrink-0 text-blue-400/40">
+865:                       {members.filter(p=>isPresent(p,statuses)).length}/{members.length}
+866:                     </span>
+867:                   </h2>
+868: 
+869:                   {/* Officer sub-section */}
+870:                   {officers.length > 0 && (
+871:                     <div className="space-y-3">
+872:                       <h3 className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-yellow-400/60">
+873:                         <span className="text-yellow-400/80"></span>
+874:                         <span>Officer</span>
+875:                         <div className="h-px flex-1 bg-linear-to-r from-yellow-500/20 to-transparent" />
+876:                         <span className="text-yellow-400/40 shrink-0">{officers.filter(p=>isPresent(p,statuses)).length}/{officers.length}</span>
+877:                       </h3>
+878:                       <div className="grid gap-3 pl-4 border-l border-yellow-500/10">
+879:                         {officers.map(p => (
+880:                           <div key={p.id}
+881:                             draggable={isAdmin}
+882:                             onDragStart={() => handleDragStart(p.id, `${branch}-officer`)}
+883:                             onDragEnter={() => handleDragEnter(p.id, `${branch}-officer`)}
+884:                             onDragEnd={handleDragEnd}
+885:                             onDragOver={e => e.preventDefault()}
+886:                             style={isAdmin ? { cursor:"grab" } : {}}>
+887:                             <PersonnelCard p={p} isAdmin={isAdmin}
+888:                               status={statuses[p.id]||"pending"} mcDate={mcDates[p.id]||""} rsoDate={rsoDates[p.id]||""}
+889:                               courseDate={courseDates[p.id]||""} courseStartDate={courseStartDates[p.id]||""}
+890:                               courseName={courseNames[p.id]||""} statusText={statusTexts[p.id]||""}
+891:                               permType={permTypes[p.id]||""} othersNote={othersNotes[p.id]||""}
+892:                               onStatusChange={hStatusChange} onMcDate={hMcDate} onRsoDate={hRsoDate}
+893:                               onCourseDate={hCourseDate} onCourseStartDate={hCourseStartDate} onCourseName={hCourseName}
+894:                               onStatusText={hStatusText} onPermType={hPermType} onOthersNote={hOthersNote}
+895:                               onDelete={id=>setDeleteId(id)}
+896:                               dragHandleProps={{}}
+897:                               onEditSave={handleEditSave} />
+898:                           </div>
+899:                         ))}
+900:                       </div>
+901:                     </div>
+902:                   )}
+903: 
+904:                   {/* WOSE sub-section */}
+905:                   {woses.length > 0 && (
+906:                     <div className="space-y-3">
+907:                       <h3 className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-blue-400/50">
+908:                         <span className="text-blue-400/70"></span>
+909:                         <span>WOSE</span>
+910:                         <div className="h-px flex-1 bg-linear-to-r from-blue-500/20 to-transparent" />
+911:                         <span className="text-blue-400/40 shrink-0">{woses.filter(p=>isPresent(p,statuses)).length}/{woses.length}</span>
+912:                       </h3>
+913:                       <div className="grid gap-3 pl-4 border-l border-blue-500/10">
+914:                         {woses.map(p => (
+915:                           <div key={p.id}
+916:                             draggable={isAdmin}
+917:                             onDragStart={() => handleDragStart(p.id, `${branch}-wose`)}
+918:                             onDragEnter={() => handleDragEnter(p.id, `${branch}-wose`)}
+919:                             onDragEnd={handleDragEnd}
+920:                             onDragOver={e => e.preventDefault()}
+921:                             style={isAdmin ? { cursor:"grab" } : {}}>
+922:                             <PersonnelCard p={p} isAdmin={isAdmin}
+923:                               status={statuses[p.id]||"pending"} mcDate={mcDates[p.id]||""} rsoDate={rsoDates[p.id]||""}
+924:                               courseDate={courseDates[p.id]||""} courseStartDate={courseStartDates[p.id]||""}
+925:                               courseName={courseNames[p.id]||""} statusText={statusTexts[p.id]||""}
+926:                               permType={permTypes[p.id]||""} othersNote={othersNotes[p.id]||""}
+927:                               onStatusChange={hStatusChange} onMcDate={hMcDate} onRsoDate={hRsoDate}
+928:                               onCourseDate={hCourseDate} onCourseStartDate={hCourseStartDate} onCourseName={hCourseName}
+929:                               onStatusText={hStatusText} onPermType={hPermType} onOthersNote={hOthersNote}
+930:                               onDelete={id=>setDeleteId(id)}
+931:                               dragHandleProps={{}}
+932:                               onEditSave={handleEditSave} />
+933:                           </div>
+934:                         ))}
+935:                       </div>
+936:                     </div>
+937:                   )}
+938:                 </div>
+939:               );
+940:             })
+941:           )}
+942:         </div>
+943:       </div>
+944: 
+945:       {/*  Login modal  */}
+946:       <AnimatePresence>
+947:         {showLogin && <LoginModal onLogin={()=>{setIsAdmin(true);setShowLogin(false);}} onClose={()=>setShowLogin(false)} />}
+948:       </AnimatePresence>
+949: 
+950:       {/*  Delete confirm  */}
+951:       <AnimatePresence>
+952:         {deleteId && (
+953:           <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
+954:             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4">
+955:             <motion.div initial={{scale:0.9}} animate={{scale:1}}
+956:               className="bg-[#0a1a3a] border border-red-500/30 p-8 rounded-2xl max-w-sm w-full text-center">
+957:               <h2 className="text-xl font-bold mb-2">Remove Entry?</h2>
+958:               <p className="text-xs text-slate-500 mb-6 tracking-wide">This action cannot be undone.</p>
+959:               <div className="flex gap-3">
+960:                 <button onClick={()=>setDeleteId(null)} className="flex-1 px-4 py-2 rounded-lg bg-white/5 text-xs font-bold uppercase">Cancel</button>
+961:                 <button onClick={()=>handleDelete(deleteId)} className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-bold uppercase transition-all">Confirm</button>
+962:               </div>
+963:             </motion.div>
+964:           </motion.div>
+965:         )}
+966:       </AnimatePresence>
+967:     </div>
+968:   );
+969: }
+
+(End of file - total 969 lines)
+</content>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Workflow\\Repo\\React\\attendance-tracker\\.env"
+}
+```
+
+**Output:**
+```
+<path>C:\Workflow\Repo\React\attendance-tracker\.env</path>
+<type>file</type>
+<content>
+1: REACT_APP_SUPABASE_URL=https://ixhgbbrtsuhjajxzmiwo.supabase.co
+2: 
+3: REACT_APP_SUPABASE_ANON_KEY=sb_publishable_ff6YkTTTMjncMXWow9RAvw_iS5BZ060
+
+(End of file - total 3 lines)
+</content>
+```
+
+---
+
+## Assistant (Build · DeepSeek V4 Flash Free · 6.1s)
+
+_Thinking:_
+
+The user wants me to move `ADMIN_USERNAME` and `ADMIN_PASSWORD` (note: they wrote "admmin_password" with extra 'm' but the actual constant is `ADMIN_PASSWORD`) from the JSX file into the `.env` file.
+
+In the file, I see:
+- Line 10: `const ADMIN_USERNAME = "Br WO";`
+- Line 11: `const ADMIN_PASSWORD = "29971";`
+
+I need to:
+1. Add `REACT_APP_ADMIN_USERNAME` and `REACT_APP_ADMIN_PASSWORD` to `.env`
+2. Replace the hardcoded values in `AttendanceTracker.jsx` with `process.env.REACT_APP_ADMIN_USERNAME` and `process.env.REACT_APP_ADMIN_PASSWORD`
+
+Let me do both edits.
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Workflow\\Repo\\React\\attendance-tracker\\.env",
+  "oldString": "REACT_APP_SUPABASE_ANON_KEY=sb_publishable_ff6YkTTTMjncMXWow9RAvw_iS5BZ060",
+  "newString": "REACT_APP_SUPABASE_ANON_KEY=sb_publishable_ff6YkTTTMjncMXWow9RAvw_iS5BZ060\n\nREACT_APP_ADMIN_USERNAME=Br WO\nREACT_APP_ADMIN_PASSWORD=29971"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Workflow\\Repo\\React\\attendance-tracker\\src\\AttendanceTracker.jsx",
+  "oldString": "const ADMIN_USERNAME = \"Br WO\";\nconst ADMIN_PASSWORD = \"29971\";",
+  "newString": "const ADMIN_USERNAME  = process.env.REACT_APP_ADMIN_USERNAME;\nconst ADMIN_PASSWORD  = process.env.REACT_APP_ADMIN_PASSWORD;"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+---
+
+## Assistant (Build · DeepSeek V4 Flash Free · 2.6s)
+
+_Thinking:_
+
+Done. Both changes made. Let me confirm the files look correct.
+
+Done. Moved `ADMIN_USERNAME` and `ADMIN_PASSWORD` into `.env` as `REACT_APP_ADMIN_USERNAME` and `REACT_APP_ADMIN_PASSWORD`, with `process.env` references in `AttendanceTracker.jsx:10-11`.
+
+---
+
+## User
+
+ I use this app live on netify where admin can delete or add user inside, and only user can select drop-down menu or type comment. Now if i enable RLS in supabase, they cannot change anything to supabase. 
+
+---
+
+## Assistant (Build · DeepSeek V4 Flash Free · 98.1s)
+
+_Thinking:_
+
+The user is describing a problem: they have a live Netlify app where:
+- Admin can delete/add users
+- Regular users can select dropdown menus or type comments
+
+But when they enable Row Level Security (RLS) in Supabase, all operations fail because there's no authentication being sent with the requests.
+
+Currently, the app uses the Supabase anon key directly with no auth flow. The `supabaseFetch` function sends the anon key as the API key, which works when RLS is disabled (allow-all). But when RLS is enabled, Supabase needs either:
+1. A valid JWT token from authentication
+2. RLS policies that allow operations based on the request context
+
+Let me look at the current supabaseFetch function to understand what's happening:
+
+```javascript
+async function supabaseFetch(path, options = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: { apikey:SUPABASE_ANON_KEY, Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
+               "Content-Type":"application/json", Prefer:"return=representation" },
+    ...options,
+  });
+  if (!res.ok) { const err = await res.text(); throw new Error(err); }
+  return res.json();
+}
+```
+
+The anon key is sent as both `apikey` and `Authorization: Bearer` header. With RLS enabled, the anon key has no role/permissions by default (or has `anon` role with no access unless policies are created).
+
+The user has two options:
+1. Set RLS policies that allow operations based on the request (like allowing all operations from the app) - but this defeats the purpose of RLS
+2. Implement a proper auth system with login
+
+Since they already have an admin login flow (username/password check), they need to:
+- Either set up proper Supabase auth with the admin login
+- Or handle this differently
+
+Let me think about what the user is actually asking. They said "if i enable RLS, they cannot change anything to supabase" - they want to know how to make it work with RLS.
+
+The simplest approach for this app would be:
+1. Set up RLS policies that allow `select` for everyone (anon role) since viewing is public
+2. For insert/update/delete, restrict to authenticated users
+3. Create a Supabase auth user for the admin
+4. Have the admin login flow create a Supabase session with `supabase.auth.signInWithPassword()`
+5. Use the `supabase` client (from `@supabase/supabase-js`) instead of raw fetch, which automatically handles auth tokens
+
+Actually, let me re-read the question. The user seems to be explaining the situation rather than asking a direct question. They might be asking "how do I fix this?" or they might be looking for guidance.
+
+Let me think about the best approach:
+
+The simplest solution with minimal code changes:
+1. Install `@supabase/supabase-js` 
+2. Create a Supabase client
+3. Create a Supabase auth user for the admin
+4. When admin logs in (with the username/password check), also sign in to Supabase auth
+5. Use the Supabase client for all operations (it automatically attaches the auth token)
+6. For non-admin users, they just select/update their own status - we can handle this by using the anon key with RLS policies that allow specific operations
+
+Wait, but the non-admin users also need to update data (change status, add comments). Currently all users can modify data. The distinction is just UI-level (admin sees extra controls).
+
+So with RLS, we need policies that allow:
+- SELECT: everyone (anon)
+- INSERT: admin only or through some mechanism
+- UPDATE/UPDATE: users can update their status/fields, admin can do everything
+
+Actually, the simplest approach without a major rewrite:
+
+**Option 1: Simple RLS policies using the anon key**
+- Create an RLS policy for each operation
+- For SELECT: allow anon to select all
+- For INSERT/UPDATE/DELETE: allow anon (no change, essentially the same as RLS off)
+- This doesn't help at all
+
+**Option 2: Use Supabase Auth with the admin account**
+- Create a user in Supabase Auth for the admin
+- When admin logs in with username/password, also authenticate with Supabase
+- The Supabase client will handle token management
+- RLS policies: allow anon SELECT, allow authenticated for INSERT/UPDATE/DELETE
+
+But this means regular users can't change their status... unless we create policies that allow update based on some condition.
+
+Actually, looking at this app more carefully - it's a parade state / attendance tracker where:
+- Everyone can view everyone's status
+- Everyone can change their own status (or anyone's - currently no per-user auth)
+- Admin can add/delete people
+
+The current architecture doesn't have per-user authentication - it's just one big app where everyone shares the same view.
+
+The tricky part is: without individual user authentication, RLS can't distinguish between regular users and admins.
+
+The most practical solution would be:
+1. For the admin: use Supabase Auth login
+2. For regular users (no individual login): use a service role key or anon key with permissive policies, OR set up anonymous auth
+
+But wait - the user said "only user can select drop-down menu or type comment" - this means regular users DO interact with the app, just not the admin functions.
+
+I think the user is asking: "How can I make this work with RLS enabled?" They want to know their options.
+
+Let me give them practical advice. The cleanest solution would be:
+
+1. Add `@supabase/supabase-js` and use the Supabase client
+2. Create a Supabase auth user for admin
+3. Modify the admin login to also call `supabase.auth.signInWithPassword()`
+4. Set RLS policies: 
+   - SELECT: anon can read all (public)
+   - INSERT/UPDATE/DELETE: authenticated users only (admin)
+   - For regular users making changes, use the anon key or service_role key
+
+Actually, a much simpler approach: since regular users currently go through the same `supabaseFetch` function, and the app doesn't distinguish between users, we could:
+
+1. Set up a Supabase auth user for the admin
+2. When admin logs in, sign in with Supabase auth  
+3. Replace `supabaseFetch` with the Supabase client (which handles token management)
+4. RLS policies: allow all operations for authenticated users; allow SELECT for anon
+5. For non-admin users... they'd still need to update data. 
+
+Hmm, this is getting complex. Let me just explain the options to the user and let them choose.
+
+I see the issue. With RLS enabled, your raw `fetch` calls with the anon key get blocked because Supabase requires a valid auth JWT or permissive policies. Here are your options:
+
+1. **Set permissive RLS policies** (least work, but RLS won't restrict anything) — create policies that allow `anon` to do everything, same as no RLS. Basically pointless.
+
+2. **Use `@supabase/supabase-js` + Supabase Auth for the admin** — create a Supabase Auth user for the admin, modify the login flow to call `supabase.auth.signInWithPassword()`, and the client will automatically attach the JWT. RLS policies can then restrict INSERT/UPDATE/DELETE to `authenticated` role.
+
+3. **Hybrid** — admin authenticates via Supabase Auth; regular users continue using the anon key with RLS policies that allow SELECT for `anon` and UPDATE only for their own records (but this requires per-user auth which you don't have).
+
+Which approach do you want? Option 2 is the most practical for your current setup — admin gets a Supabase Auth login, regular users' existing behavior stays on the anon key with permissive SELECT policies, and admin operations require auth. 
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "question": "How would you like to handle RLS?",
+      "header": "RLS approach",
+      "options": [
+        {
+          "label": "Option 2: Supabase Auth for admin",
+          "description": "Install @supabase/supabase-js, create Supabase Auth user for admin, modify login to sign in with Supabase, replace raw fetch with Supabase client. RLS: anon can SELECT, authenticated can INSERT/UPDATE/DELETE."
+        },
+        {
+          "label": "Option 3: Hybrid (more complex)",
+          "description": "Same as Option 2 but also set up per-user auth so regular users can update their own records while admin has full access."
+        },
+        {
+          "label": "Option 1: Permissive RLS only",
+          "description": "Just add RLS policies that allow anon everything. Security theater but quickest."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "How would you like to handle RLS?"="Option 1: Permissive RLS only". You can now continue with the user's answers in mind.
+```
+
+---
+
+## Assistant (Build · DeepSeek V4 Flash Free · 5.8s)
+
+_Thinking:_
+
+The user wants Option 1 - just add permissive RLS policies that allow the anon role to do everything. This means I need to provide them with the SQL to run in the Supabase SQL editor.
+
+I need to write SQL that creates RLS policies for the `personnel` table:
+- Enable RLS on the table
+- Create policies that allow `anon` role to SELECT, INSERT, UPDATE, DELETE all rows
+
+Since they use the `personnel` table directly (the supabaseFetch calls go to `/rest/v1/personnel`), I need policies on that table.
+
+Let me think about what SQL to provide. I'll give them a SQL snippet they can run in the Supabase dashboard SQL editor.
+
+Simple enough. Run this SQL in your Supabase dashboard (SQL Editor) to enable RLS with permissive policies for the `personnel` table — it gives the `anon` role full access, which matches your current no-RLS behavior:
+
+```sql
+ALTER TABLE personnel ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "anon_select" ON personnel FOR SELECT TO anon USING (true);
+CREATE POLICY "anon_insert" ON personnel FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "anon_update" ON personnel FOR UPDATE TO anon USING (true);
+CREATE POLICY "anon_delete" ON personnel FOR DELETE TO anon USING (true);
+```
+
+The app will keep working exactly as before — no code changes needed.
+
+---
+
+## User
+
+look at https://nsf-attendance-tracker.netlify.app, what does immpecable skill do to improve the website even further?
+
+---
+
+## Assistant (Plan · DeepSeek V4 Flash Free · 5.3s)
+
+_Thinking:_
+
+The user wants me to:
+1. Look at their live website: https://nsf-attendance-tracker.netlify.app
+2. Load the "impeccable" skill to see what it does
+3. Explain what improvements the impeccable skill would suggest
+
+Let me first browse the live site and load the skill.
+
+**Tool: skill**
+
+**Input:**
+```json
+{
+  "name": "impeccable"
+}
+```
+
+**Output:**
+```
+<skill_content name="impeccable">
+# Skill: impeccable
+
+Designs and iterates production-grade frontend interfaces. Real working code, committed design choices, exceptional craft.
+
+## Setup
+
+Before any design work or file edits:
+
+1. Load context (PRODUCT.md / DESIGN.md) via the loader script.
+2. Identify the register and load the matching register reference (brand.md or product.md).
+3. **If the user invoked a sub-command (e.g. `craft`, `shape`, `audit`), load its reference file too.** This is non-negotiable: `craft` without `craft.md` loaded means you'll skip the shape-and-confirm step the user expects.
+
+Skipping these produces generic output that ignores the project.
+
+### 1. Context gathering
+
+Two files, case-insensitive. The loader looks at the project root by default and falls back to `.agents/context/` and `docs/` if the root is clean. Override with `IMPECCABLE_CONTEXT_DIR=path/to/dir` (absolute or relative to cwd).
+
+- **PRODUCT.md**: required. Users, brand, tone, anti-references, strategic principles.
+- **DESIGN.md**: optional, strongly recommended. Colors, typography, elevation, components.
+
+Load both in one call:
+
+```bash
+node {{scripts_path}}/load-context.mjs
+```
+
+Consume the full JSON output. Never pipe through `head`, `tail`, `grep`, or `jq`. The output's `contextDir` field tells you where the files were resolved from.
+
+If the output is already in this session's conversation history, don't re-run. Exceptions requiring a fresh load: you just ran `{{command_prefix}}impeccable teach` or `{{command_prefix}}impeccable document` (they rewrite the files), or the user manually edited one.
+
+`{{command_prefix}}impeccable live` already warms context via `live.mjs`. If you've run `live.mjs`, don't also run `load-context.mjs` this session.
+
+If PRODUCT.md is missing, empty, or placeholder (`[TODO]` markers, <200 chars): run `{{command_prefix}}impeccable teach`, then resume the user's original task with the fresh context. If the original task was `{{command_prefix}}impeccable craft`, resume into `{{command_prefix}}impeccable shape` before any implementation work.
+
+If DESIGN.md is missing: nudge once per session (*"Run `{{command_prefix}}impeccable document` for more on-brand output"*), then proceed.
+
+### 2. Register
+
+Every design task is **brand** (marketing, landing, campaign, long-form content, portfolio: design IS the product) or **product** (app UI, admin, dashboard, tool: design SERVES the product).
+
+Identify before designing. Priority: (1) cue in the task itself ("landing page" vs "dashboard"); (2) the surface in focus (the page, file, or route being worked on); (3) `register` field in PRODUCT.md. First match wins.
+
+If PRODUCT.md lacks the `register` field (legacy), infer it once from its "Users" and "Product Purpose" sections, then cache the inferred value for the session. Suggest the user run `{{command_prefix}}impeccable teach` to add the field explicitly.
+
+Load the matching reference: [reference/brand.md](reference/brand.md) or [reference/product.md](reference/product.md). The shared design laws below apply to both.
+
+## Shared design laws
+
+Apply to every design, both registers. Match implementation complexity to the aesthetic vision: maximalism needs elaborate code, minimalism needs precision. Interpret creatively. Vary across projects; never converge on the same choices. {{model}} is capable of extraordinary work. Don't hold back.
+
+### Color
+
+- Use OKLCH. Reduce chroma as lightness approaches 0 or 100; high chroma at extremes looks garish.
+- Never use `#000` or `#fff`. Tint every neutral toward the brand hue (chroma 0.005–0.01 is enough).
+- Pick a **color strategy** before picking colors. Four steps on the commitment axis:
+  - **Restrained**: tinted neutrals + one accent ≤10%. Product default; brand minimalism.
+  - **Committed**: one saturated color carries 30–60% of the surface. Brand default for identity-driven pages.
+  - **Full palette**: 3–4 named roles, each used deliberately. Brand campaigns; product data viz.
+  - **Drenched**: the surface IS the color. Brand heroes, campaign pages.
+- The "one accent ≤10%" rule is Restrained only. Committed / Full palette / Drenched exceed it on purpose. Don't collapse every design to Restrained by reflex.
+
+### Theme
+
+Dark vs. light is never a default. Not dark "because tools look cool dark." Not light "to be safe."
+
+Before choosing, write one sentence of physical scene: who uses this, where, under what ambient light, in what mood. If the sentence doesn't force the answer, it's not concrete enough. Add detail until it does.
+
+"Observability dashboard" does not force an answer. "SRE glancing at incident severity on a 27-inch monitor at 2am in a dim room" does. Run the sentence, not the category.
+
+### Typography
+
+- Cap body line length at 65–75ch.
+- Hierarchy through scale + weight contrast (≥1.25 ratio between steps). Avoid flat scales.
+
+### Layout
+
+- Vary spacing for rhythm. Same padding everywhere is monotony.
+- Cards are the lazy answer. Use them only when they're truly the best affordance. Nested cards are always wrong.
+- Don't wrap everything in a container. Most things don't need one.
+
+### Motion
+
+- Don't animate CSS layout properties.
+- Ease out with exponential curves (ease-out-quart / quint / expo). No bounce, no elastic.
+
+### Absolute bans
+
+Match-and-refuse. If you're about to write any of these, rewrite the element with different structure.
+
+- **Side-stripe borders.** `border-left` or `border-right` greater than 1px as a colored accent on cards, list items, callouts, or alerts. Never intentional. Rewrite with full borders, background tints, leading numbers/icons, or nothing.
+- **Gradient text.** `background-clip: text` combined with a gradient background. Decorative, never meaningful. Use a single solid color. Emphasis via weight or size.
+- **Glassmorphism as default.** Blurs and glass cards used decoratively. Rare and purposeful, or nothing.
+- **The hero-metric template.** Big number, small label, supporting stats, gradient accent. SaaS cliché.
+- **Identical card grids.** Same-sized cards with icon + heading + text, repeated endlessly.
+- **Modal as first thought.** Modals are usually laziness. Exhaust inline / progressive alternatives first.
+
+### Copy
+
+- Every word earns its place. No restated headings, no intros that repeat the title.
+- **No em dashes.** Use commas, colons, semicolons, periods, or parentheses. Also not `--`.
+
+### The AI slop test
+
+If someone could look at this interface and say "AI made that" without doubt, it's failed. Cross-register failures are the absolute bans above. Register-specific failures live in each reference.
+
+**Category-reflex check.** Run at two altitudes; the second one catches what the first one misses.
+
+- **First-order:** if someone could guess the theme + palette from the category alone ("observability → dark blue", "healthcare → white + teal", "finance → navy + gold", "crypto → neon on black"), it's the first training-data reflex. Rework the scene sentence and color strategy until the answer isn't obvious from the domain.
+- **Second-order:** if someone could guess the aesthetic family from category-plus-anti-references ("AI workflow tool that's not SaaS-cream → editorial-typographic", "fintech that's not navy-and-gold → terminal-native dark mode"), it's the trap one tier deeper. The first reflex was avoided; the second wasn't. Rework until both answers are not obvious. The brand register's [reflex-reject aesthetic lanes](reference/brand.md) list catches the currently-saturated families.
+
+## Commands
+
+| Command | Category | Description | Reference |
+|---|---|---|---|
+| `craft [feature]` | Build | Shape, then build a feature end-to-end | [reference/craft.md](reference/craft.md) |
+| `shape [feature]` | Build | Plan UX/UI before writing code | [reference/shape.md](reference/shape.md) |
+| `teach` | Build | Set up PRODUCT.md and DESIGN.md context | [reference/teach.md](reference/teach.md) |
+| `document` | Build | Generate DESIGN.md from existing project code | [reference/document.md](reference/document.md) |
+| `extract [target]` | Build | Pull reusable tokens and components into design system | [reference/extract.md](reference/extract.md) |
+| `critique [target]` | Evaluate | UX design review with heuristic scoring | [reference/critique.md](reference/critique.md) |
+| `audit [target]` | Evaluate | Technical quality checks (a11y, perf, responsive) | [reference/audit.md](reference/audit.md) |
+| `polish [target]` | Refine | Final quality pass before shipping | [reference/polish.md](reference/polish.md) |
+| `bolder [target]` | Refine | Amplify safe or bland designs | [reference/bolder.md](reference/bolder.md) |
+| `quieter [target]` | Refine | Tone down aggressive or overstimulating designs | [reference/quieter.md](reference/quieter.md) |
+| `distill [target]` | Refine | Strip to essence, remove complexity | [reference/distill.md](reference/distill.md) |
+| `harden [target]` | Refine | Production-ready: errors, i18n, edge cases | [reference/harden.md](reference/harden.md) |
+| `onboard [target]` | Refine | Design first-run flows, empty states, activation | [reference/onboard.md](reference/onboard.md) |
+| `animate [target]` | Enhance | Add purposeful animations and motion | [reference/animate.md](reference/animate.md) |
+| `colorize [target]` | Enhance | Add strategic color to monochromatic UIs | [reference/colorize.md](reference/colorize.md) |
+| `typeset [target]` | Enhance | Improve typography hierarchy and fonts | [reference/typeset.md](reference/typeset.md) |
+| `layout [target]` | Enhance | Fix spacing, rhythm, and visual hierarchy | [reference/layout.md](reference/layout.md) |
+| `delight [target]` | Enhance | Add personality and memorable touches | [reference/delight.md](reference/delight.md) |
+| `overdrive [target]` | Enhance | Push past conventional limits | [reference/overdrive.md](reference/overdrive.md) |
+| `clarify [target]` | Fix | Improve UX copy, labels, and error messages | [reference/clarify.md](reference/clarify.md) |
+| `adapt [target]` | Fix | Adapt for different devices and screen sizes | [reference/adapt.md](reference/adapt.md) |
+| `optimize [target]` | Fix | Diagnose and fix UI performance | [reference/optimize.md](reference/optimize.md) |
+| `live` | Iterate | Visual variant mode: pick elements in the browser, generate alternatives | [reference/live.md](reference/live.md) |
+
+Plus two management commands: `pin <command>` and `unpin <command>`, detailed below.
+
+### Routing rules
+
+1. **No argument**: render the table above as the user-facing command menu, grouped by category. Ask what they'd like to do.
+2. **First word matches a command**: load its reference file and follow its instructions. Everything after the command name is the target.
+3. **First word doesn't match**: general design invocation. Apply the setup steps, shared design laws, and the loaded register reference, using the full argument as context.
+
+Setup (context gathering, register) is already loaded by then; sub-commands don't re-invoke `{{command_prefix}}impeccable`.
+
+If the first word is `craft`, setup still runs first, but [reference/craft.md](reference/craft.md) owns the rest of the flow. If setup invokes `teach` as a blocker, finish teach, refresh context, then resume the original command and target.
+
+## Pin / Unpin
+
+**Pin** creates a standalone shortcut so `{{command_prefix}}<command>` invokes `{{command_prefix}}impeccable <command>` directly. **Unpin** removes it. The script writes to every harness directory present in the project.
+
+```bash
+node {{scripts_path}}/pin.mjs <pin|unpin> <command>
+```
+
+Valid `<command>` is any command from the table above. Report the script's result concisely. Confirm the new shortcut on success, relay stderr verbatim on error.
+
+Base directory for this skill: C:\Users\Zen7\.agents\skills\impeccable
+Relative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.
+Note: file list is sampled.
+
+<skill_files>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\pin.mjs</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\modern-screenshot.umd.js</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\load-context.mjs</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\live.mjs</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\live-wrap.mjs</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\live-status.mjs</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\live-session-store.mjs</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\live-server.mjs</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\live-resume.mjs</file>
+<file>C:\Users\Zen7\.agents\skills\impeccable\scripts\live-poll.mjs</file>
+</skill_files>
+</skill_content>
+```
+
+**Tool: playwright_browser_navigate**
+
+**Input:**
+```json
+{
+  "url": "https://nsf-attendance-tracker.netlify.app"
+}
+```
+
+**Error:**
+```
+### Error
+Error: async initializeServer: Chromium distribution 'chrome' is not found at C:\Users\Zen7\AppData\Local\Google\Chrome\Application\chrome.exe
+Run "npx playwright install chrome"
+```
+
+---
+
+## Assistant (Plan · DeepSeek V4 Flash Free · 3.0s)
+
+_Thinking:_
+
+The browser can't open, but I already have a good understanding of the site from reading the code. Let me look at the live site via a web fetch to get a sense of what it looks like, and then use the impeccable skill to suggest improvements.
+
+Let me try fetching the page content to understand it.
+
+**Tool: webfetch**
+
+**Input:**
+```json
+{
+  "url": "https://nsf-attendance-tracker.netlify.app",
+  "format": "text"
+}
+```
+
+**Output:**
+```
+Attendance Tracker
+```
+
+---
+
+## Assistant (Plan · DeepSeek V4 Flash Free · 3.3s)
+
+_Thinking:_
+
+Let me analyze the site from the code I already read and provide suggestions based on the impeccable skill. Let me load the relevant reference files from the skill to understand what specific recommendations it would make.
+
+Let me load the registers and some relevant command references.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\Zen7\\.agents\\skills\\impeccable\\reference\\product.md"
+}
+```
+
+**Output:**
+```
+<path>C:\Users\Zen7\.agents\skills\impeccable\reference\product.md</path>
+<type>file</type>
+<content>
+1: # Product register
+2: 
+3: When design SERVES the product: app UIs, admin dashboards, settings panels, data tables, tools, authenticated surfaces, anything where the user is in a task.
+4: 
+5: ## The product slop test
+6: 
+7: Not "would someone say AI made this." Familiarity is often a feature here. The test is: would a user fluent in the category's best tools (Linear, Figma, Notion, Raycast, Stripe come to mind) sit down and trust this interface, or pause at every subtly-off component?
+8: 
+9: Product UI's failure mode isn't flatness, it's strangeness without purpose: over-decorated buttons, mismatched form controls, gratuitous motion, display fonts where labels should be, invented affordances for standard tasks. The bar is earned familiarity. The tool should disappear into the task.
+10: 
+11: ## Typography
+12: 
+13: - **System fonts are legitimate.** `-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif` gives you native feel on every platform. Inter is the common cross-platform default for a reason.
+14: - **One family is often right.** Product UIs don't need display/body pairing. A well-tuned sans carries headings, buttons, labels, body, data.
+15: - **Fixed rem scale, not fluid.** Clamp-sized headings don't serve product UI. Users view at consistent DPI, and a fluid h1 that shrinks in a sidebar looks worse, not better.
+16: - **Tighter scale ratio.** 1.125–1.2 between steps is typical. More type elements here than on brand surfaces; exaggerated contrast creates noise.
+17: - **Line length still applies for prose** (65–75ch). Data and compact UI can run denser; tables at 120ch+ are fine.
+18: 
+19: ## Color
+20: 
+21: Product defaults to Restrained. A single surface can earn Committed (a dashboard where one category color carries a report, an onboarding flow with a drenched welcome screen), but Restrained is the floor.
+22: 
+23: - State-rich semantic vocabulary: hover, focus, active, disabled, selected, loading, error, warning, success, info. Standardize these.
+24: - Accent color used for primary actions, current selection, and state indicators only, not decoration.
+25: - A second neutral layer for sidebars, toolbars, and panels (slightly cooler or warmer than the content surface).
+26: 
+27: ## Layout
+28: 
+29: - Predictable grids. Consistency IS an affordance; users navigate faster when the structure is expected.
+30: - Familiar patterns are features. Standard navigation (top bar, side nav), breadcrumbs, tabs, and form layouts have established user expectations. Don't reinvent for flavor.
+31: - Responsive behavior is structural (collapse sidebar, responsive table, breakpoint-driven columns), not fluid typography.
+32: 
+33: ## Components
+34: 
+35: Every interactive component has: default, hover, focus, active, disabled, loading, error. Don't ship with half of these.
+36: 
+37: - Skeleton states for loading, not spinners in the middle of content.
+38: - Empty states that teach the interface, not "nothing here."
+39: - Consistent affordances across the surface. Same button shape. Same form-control vocabulary. Same icon style.
+40: 
+41: ## Motion
+42: 
+43: - 150–250 ms on most transitions. Users are in flow; don't make them wait for choreography.
+44: - Motion conveys state, not decoration. State change, feedback, loading, reveal: nothing else.
+45: - No orchestrated page-load sequences. Product loads into a task; users don't want to watch it load.
+46: 
+47: ## Product bans (on top of the shared absolute bans)
+48: 
+49: - Decorative motion that doesn't convey state.
+50: - Inconsistent component vocabulary across screens. If the "save" button looks different in two places, one is wrong.
+51: - Display fonts in UI labels, buttons, data.
+52: - Reinventing standard affordances for flavor (custom scrollbars, weird form controls, non-standard modals).
+53: - Heavy color or full-saturation accents on inactive states.
+54: 
+55: ## Product permissions
+56: 
+57: Product can afford things brand surfaces can't.
+58: 
+59: - System fonts and familiar sans defaults (Inter, SF Pro, system-ui stacks).
+60: - Standard navigation patterns: top bar + side nav, breadcrumbs, tabs, command palettes.
+61: - Density. Tables with many rows, panels with many labels, dense information when users need it.
+62: - Consistency over surprise. The same visual vocabulary screen to screen is a virtue; delight is saved for moments, not pages.
+
+(End of file - total 62 lines)
+</content>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\Zen7\\.agents\\skills\\impeccable\\reference\\critique.md"
+}
+```
+
+**Output:**
+```
+<path>C:\Users\Zen7\.agents\skills\impeccable\reference\critique.md</path>
+<type>file</type>
+<content>
+1: ### Purpose
+2: 
+3: Resolve one stable target, run two independent assessments, synthesize a design critique, persist a snapshot, and ask the user what to improve next. The chat response is the primary deliverable; the snapshot is an archive/backlog for future commands.
+4: 
+5: ### Hard Invariants
+6: 
+7: - Assessment A (design review) and Assessment B (detector/browser evidence) are both required.
+8: - Assessment A must finish before detector findings enter the parent synthesis context. Detector output is deterministic, but it still anchors judgment.
+9: - If sub-agents are unavailable, fall back sequentially: finish and record Assessment A first, then run Assessment B, then synthesize.
+10: - A skipped detector is a failed critique run unless `detect.mjs` is missing or crashes after a real attempt.
+11: - Viewable targets require browser inspection when available.
+12: - Any local server started only for critique visualization must run in the background, have a recorded stop method, and be stopped before final reporting unless the user asks to keep it.
+13: - Do not claim a user-visible overlay exists unless script injection succeeded and the detector ran in the page.
+14: 
+15: ### Setup
+16: 
+17: 1. **Resolve the target** to a concrete file path or URL. Prefer a source path over a dev-server URL when both identify the same surface; ports drift, paths do not.
+18:    - "the homepage" -> `site/pages/index.astro` or `index.html`
+19:    - "the settings modal" -> the primary component file
+20:    - "this page" -> the current URL or source file
+21: 2. **Compute the slug**:
+22:    ```bash
+23:    node {{scripts_path}}/critique-storage.mjs slug "<resolved-path-or-url>"
+24:    ```
+25:    Keep it. If the command exits non-zero, skip persistence and trend for this run, but continue the critique.
+26: 3. **Read `.impeccable/critique/ignore.md`** if it exists. Drop matching findings silently; it is the only prior-run input critique consumes.
+27: 
+28: ### Assessment Orchestration
+29: 
+30: Delegate Assessment A and Assessment B to separate sub-agents when possible. They must not see each other's output. Do not show findings to the user until synthesis.
+31: 
+32: <codex>
+33: Codex sub-agent gate:
+34: - If `spawn_agent` is exposed and the user explicitly allowed sub-agents, delegation, or parallel agent work, spawn A and B immediately.
+35: - If `spawn_agent` is exposed but the user did not explicitly allow sub-agents, ask exactly once: "Impeccable critique is designed to run two independent sub-agents for an unanchored assessment. May I use sub-agents for this critique?" Then stop until the user answers.
+36: - If allowed, spawn A and B. If declined, run sequentially and report `Assessment independence: degraded (sub-agents declined by user)`.
+37: - If `spawn_agent` is not exposed, do not ask; run sequentially and report `Assessment independence: degraded (spawn_agent unavailable in this session)`.
+38: - If spawning fails after permission, run sequentially and report `Assessment independence: degraded (sub-agent spawn failed: <exact error>)`.
+39: Prefer `fork_context: false` with self-contained prompts containing cwd, target, live URL, references, product context, and output contract. If using `fork_context: true`, omit `agent_type`, `model`, and `reasoning_effort`.
+40: </codex>
+41: 
+42: If browser automation is available, each assessment creates its own new tab. Never reuse an existing tab, even if it is already at the right URL.
+43: 
+44: ### Assessment A: Design Review
+45: 
+46: Read relevant source files and visually inspect the live page when browser automation is available. Think like a design director.
+47: 
+48: Evaluate:
+49: - **AI slop**: Would someone believe "AI made this" immediately? Check all DON'T guidance from the parent Impeccable skill.
+50: - **Holistic design**: hierarchy, IA, emotional fit, discoverability, composition, typography, color, accessibility, states, copy, and edge cases.
+51: - **Cognitive load**: consult [cognitive-load](cognitive-load.md); report checklist failures and decision points with >4 visible options.
+52: - **Emotional journey**: peak-end rule, emotional valleys, reassurance at high-stakes moments.
+53: - **Nielsen heuristics**: consult [heuristics-scoring](heuristics-scoring.md); score all 10 heuristics 0-4.
+54: 
+55: Return: AI slop verdict, heuristic scores, cognitive load, emotional journey, 2-3 strengths, 3-5 priority issues, persona red flags, minor observations, and provocative questions.
+56: 
+57: ### Assessment B: Detector + Browser Evidence
+58: 
+59: Run the bundled detector and browser visualization evidence. Assessment B is mandatory and must remain isolated from Assessment A until both are complete.
+60: 
+61: CLI scan:
+62: ```bash
+63: node {{scripts_path}}/detect.mjs --json [--fast] [target]
+64: ```
+65: 
+66: - Pass markup files/directories as `[target]`; do not pass CSS-only files.
+67: - For URLs, skip CLI scan and use browser visualization.
+68: - For 200+ scannable files, use `--fast`; for 500+, narrow scope or ask.
+69: - Exit code 0 = clean; 2 = findings.
+70: - If the detector entrypoint is missing or fails to load, report deterministic scan unavailable and continue with browser/manual review.
+71: 
+72: Browser visualization is required for a viewable target when browser automation is available. Use a localhost dev/static URL for local files; avoid `file://` unless the available browser explicitly supports this workflow. Overlay flow:
+73: 
+74: 1. Create a fresh tab and navigate.
+75: 2. Preflight mutable injection by setting `document.title` and appending a `<script>` tag. Read-only evaluate APIs do not count.
+76: 3. If mutation is unavailable, skip live server, browser presentation, and injection; report fallback signal.
+77: 4. If mutation is available, start `node {{scripts_path}}/live-server.mjs --background`, present the browser if supported, label `[Human]`, scroll top, inject `http://localhost:PORT/detect.js`, wait 2-3 seconds, read `impeccable` console messages, then stop the live server.
+78: 5. For multi-view targets, inject on 3-5 representative pages.
+79: 
+80: <codex>
+81: Codex Browser note: Use the Browser skill. Do not spend a Browser attempt on `file://`. Only call `visibility.set(true)` after mutable script injection is confirmed for the `[Human]` overlay path; verify with `get()`. Use `tab.dev.logs({ filter: "impeccable" })` for console results. Its Playwright `evaluate(...)` surface is read-only; do not rely on it for mutation.
+82: </codex>
+83: 
+84: Return: CLI findings JSON/counts, browser console findings if applicable, false positives, and skipped/failed browser steps with concrete reasons.
+85: 
+86: After Assessment B returns usable CLI findings, reuse them. Do not rerun `detect.mjs` in the parent unless Assessment B failed, was truncated, or omitted count, rule names, or file locations.
+87: 
+88: <codex>
+89: Codex failure accounting: final Run Notes must include target slug, ignore list, assessment independence, CLI detector, browser visibility, overlay injection, live-server cleanup, temp-file cleanup, and any fallback signal used. Do not run repo status checks, late API spelunking, or unrelated verification after the report is assembled.
+90: </codex>
+91: 
+92: ### Generate Combined Critique Report
+93: 
+94: Synthesize both assessments into a single report. Do NOT simply concatenate. Weave the findings together, noting where the LLM review and detector agree, where the detector caught issues the LLM missed, and where detector findings are false positives.
+95: 
+96: The chat response is the primary user-facing deliverable. Present the full structured critique below in chat; do not replace it with a summary and a link. The persisted snapshot is only an archive/backlog for later commands.
+97: 
+98: <codex>
+99: Codex final-answer note: `$impeccable critique` produces a report artifact, so the final chat response should intentionally exceed the usual concise close-out style. Do not title the final response "Critique Summary" unless the user explicitly asked for a summary.
+100: </codex>
+101: 
+102: Structure your feedback as a design director would:
+103: 
+104: #### Design Health Score
+105: > *Consult [heuristics-scoring](heuristics-scoring.md)*
+106: 
+107: Present the Nielsen's 10 heuristics scores as a table:
+108: 
+109: | # | Heuristic | Score | Key Issue |
+110: |---|-----------|-------|-----------|
+111: | 1 | Visibility of System Status | ? | [specific finding or "n/a" if solid] |
+112: | 2 | Match System / Real World | ? | |
+113: | 3 | User Control and Freedom | ? | |
+114: | 4 | Consistency and Standards | ? | |
+115: | 5 | Error Prevention | ? | |
+116: | 6 | Recognition Rather Than Recall | ? | |
+117: | 7 | Flexibility and Efficiency | ? | |
+118: | 8 | Aesthetic and Minimalist Design | ? | |
+119: | 9 | Error Recovery | ? | |
+120: | 10 | Help and Documentation | ? | |
+121: | **Total** | | **??/40** | **[Rating band]** |
+122: 
+123: Be honest with scores. A 4 means genuinely excellent. Most real interfaces score 20-32.
+124: 
+125: #### Anti-Patterns Verdict
+126: 
+127: **Start here.** Does this look AI-generated?
+128: 
+129: **LLM assessment**: Your own evaluation of AI slop tells. Cover overall aesthetic feel, layout sameness, generic composition, missed opportunities for personality.
+130: 
+131: **Deterministic scan**: Summarize what the automated detector found, with counts and file locations. Note any additional issues the detector caught that you missed, and flag any false positives.
+132: 
+133: **Visual overlays** (if injection succeeded): Tell the user that overlays are now visible in the **[Human]** tab in their browser, highlighting the detected issues. Summarize what the console output reported. If browser visualization was attempted but injection failed, say that no reliable user-visible overlay is available and report the fallback signal instead.
+134: 
+135: #### Overall Impression
+136: A brief gut reaction: what works, what doesn't, and the single biggest opportunity.
+137: 
+138: #### What's Working
+139: Highlight 2-3 things done well. Be specific about why they work.
+140: 
+141: #### Priority Issues
+142: The 3-5 most impactful design problems, ordered by importance.
+143: 
+144: For each issue, tag with **P0-P3 severity** (consult [heuristics-scoring](heuristics-scoring.md) for severity definitions):
+145: - **[P?] What**: Name the problem clearly
+146: - **Why it matters**: How this hurts users or undermines goals
+147: - **Fix**: What to do about it (be concrete)
+148: - **Suggested command**: Which command could address this (from: {{available_commands}})
+149: 
+150: #### Persona Red Flags
+151: > *Consult [personas](personas.md)*
+152: 
+153: Auto-select 2-3 personas most relevant to this interface type (use the selection table in the reference). If `{{config_file}}` contains a `## Design Context` section from `impeccable teach`, also generate 1-2 project-specific personas from the audience/brand info.
+154: 
+155: For each selected persona, walk through the primary user action and list specific red flags found:
+156: 
+157: **Alex (Power User)**: No keyboard shortcuts detected. Form requires 8 clicks for primary action. Forced modal onboarding. High abandonment risk.
+158: 
+159: **Jordan (First-Timer)**: Icon-only nav in sidebar. Technical jargon in error messages ("404 Not Found"). No visible help. Will abandon at step 2.
+160: 
+161: Be specific. Name the exact elements and interactions that fail each persona. Don't write generic persona descriptions; write what broke for them.
+162: 
+163: #### Minor Observations
+164: Quick notes on smaller issues worth addressing.
+165: 
+166: #### Questions to Consider
+167: Provocative questions that might unlock better solutions:
+168: - "What if the primary action were more prominent?"
+169: - "Does this need to feel this complex?"
+170: - "What would a confident version of this look like?"
+171: 
+172: <codex>
+173: #### Run Notes
+174: Keep this compact. Include status for target slug, ignore list, assessment independence, CLI detector, browser visibility, overlay injection, live server cleanup, and temp-file cleanup. For failed or skipped steps, give the concrete observed reason and the fallback signal used. In the final chat response, also include snapshot write and trend read status after persistence has run.
+175: 
+176: Codex Run Notes are final-chat only. Do not include this section in the persisted snapshot body, because persistence, trend read, and temp cleanup happen after the snapshot write and would otherwise archive stale status such as "pending after persistence."
+177: </codex>
+178: 
+179: **Remember**:
+180: - Be direct. Vague feedback wastes everyone's time.
+181: - Be specific. "The submit button," not "some elements."
+182: - Say what's wrong AND why it matters to users.
+183: - Give concrete suggestions. Cut "consider exploring..." entirely.
+184: - Prioritize ruthlessly. If everything is important, nothing is.
+185: - Don't soften criticism. Developers need honest feedback to ship great design.
+186: 
+187: ### Persist the Snapshot
+188: 
+189: Once the report above is finalized, write it to `.impeccable/critique/` so the user can refer back, and so `{{command_prefix}}impeccable polish` can pick up the priority issues without a copy-paste.
+190: 
+191: Skip this step if the Setup slug was null (vague or root-level target).
+192: 
+193: 1. **Write the body to a temp file** so you can pipe it to the helper. Use the full critique report (heuristic table, anti-patterns verdict, priority issues, persona red flags, minor observations, and questions), but stop before the "Ask the User" / "Recommended Actions" sections that come later.
+194: 
+195:    <codex>
+196:    Codex: exclude Run Notes from the temp body file; Run Notes are final-chat only because persistence, trend read, and temp cleanup happen after the snapshot write.
+197:    </codex>
+198: 
+199: 2. **Pass the structured metadata** through `IMPECCABLE_CRITIQUE_META` (JSON), then run the write command:
+200:    ```bash
+201:    IMPECCABLE_CRITIQUE_META='{"target":"<user phrasing>","total_score":<n>,"p0_count":<n>,"p1_count":<n>}' \
+202:      node {{scripts_path}}/critique-storage.mjs write <slug> <body-file>
+203:    ```
+204:    The helper prints the absolute path it wrote.
+205: 
+206: 3. **Delete the temp body file** after the write attempt completes, whether the write succeeded or failed. If deletion fails, mention `temp-file cleanup failed: <reason>` briefly in the final output, but do not block the critique.
+207: 
+208: 4. **Read the trend** for context:
+209:    ```bash
+210:    node {{scripts_path}}/critique-storage.mjs trend <slug> 5
+211:    ```
+212:    This returns a JSON array of the last 5 frontmatter entries (including the one you just wrote).
+213: 
+214: 5. **Append a single line to the user-visible output**, after the report and before the questions:
+215: 
+216:    > **Trend for `<slug>` (last 5 runs): 24 → 28 → 32 → 29 → 32**
+217:    > Wrote `.impeccable/critique/<filename>`.
+218: 
+219:    If this is the first run for the slug, the trend is just one score; say so: "First run for this target, no trend yet."
+220: 
+221: This is fire-and-forget. Do not show the user the helper's JSON output; only the human-readable trend line and the written path. Failures here should not block the rest of the flow; print the error and move on.
+222: 
+223: ### Ask the User
+224: 
+225: **After presenting findings**, use targeted questions based on what was actually found. {{ask_instruction}} These answers will shape the action plan.
+226: 
+227: Ask questions along these lines (adapt to the specific findings; do NOT ask generic questions):
+228: 
+229: 1. **Priority direction**: Based on the issues found, ask which category matters most to the user right now. For example: "I found problems with visual hierarchy, color usage, and information overload. Which area should we tackle first?" Offer the top 2-3 issue categories as options.
+230: 
+231: 2. **Design intent**: If the critique found a tonal mismatch, ask whether it was intentional. For example: "The interface feels clinical and corporate. Is that the intended tone, or should it feel warmer/bolder/more playful?" Offer 2-3 tonal directions as options based on what would fix the issues found.
+232: 
+233: 3. **Scope**: Ask how much the user wants to take on. For example: "I found N issues. Want to address everything, or focus on the top 3?" Offer scope options like "Top 3 only", "All issues", "Critical issues only".
+234: 
+235: 4. **Constraints** (optional; only ask if relevant): If the findings touch many areas, ask if anything is off-limits. For example: "Should any sections stay as-is?" This prevents the plan from touching things the user considers done.
+236: 
+237: **Rules for questions**:
+238: - Every question must reference specific findings from the report. Never ask generic "who is your audience?" questions.
+239: - Keep it to 2-4 questions maximum. Respect the user's time.
+240: - Offer concrete options, not open-ended prompts.
+241: - If findings are straightforward (e.g., only 1-2 clear issues), skip questions and go directly to Recommended Actions.
+242: 
+243: <codex>
+244: Codex final-question gate: The user-visible response must either include the targeted questions or explicitly say `Questions skipped: <reason>` because the findings were straightforward. Each question must include 2-3 concrete answer options tied to the actual critique findings. Do not end with only open-ended questions.
+245: </codex>
+246: 
+247: ### Recommended Actions
+248: 
+249: **After receiving the user's answers**, present a prioritized action summary reflecting the user's priorities and scope from Ask the User.
+250: 
+251: #### Action Summary
+252: 
+253: List recommended commands in priority order, based on the user's answers:
+254: 
+255: 1. **`{{command_prefix}}command-name`**: Brief description of what to fix (specific context from critique findings)
+256: 2. **`{{command_prefix}}command-name`**: Brief description (specific context)
+257: ...
+258: 
+259: **Rules for recommendations**:
+260: - Only recommend commands from: {{available_commands}}
+261: - Order by the user's stated priorities first, then by impact
+262: - Each item's description should carry enough context that the command knows what to focus on
+263: - Map each Priority Issue to the appropriate command
+264: - Skip commands that would address zero issues
+265: - If the user chose a limited scope, only include items within that scope
+266: - If the user marked areas as off-limits, exclude commands that would touch those areas
+267: - End with `{{command_prefix}}impeccable polish` as the final step if any fixes were recommended
+268: 
+269: After presenting the summary, tell the user:
+270: 
+271: > You can ask me to run these one at a time, all at once, or in any order you prefer.
+272: >
+273: > Re-run `{{command_prefix}}impeccable critique` after fixes to see your score improve.
+
+(End of file - total 273 lines)
+</content>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\Zen7\\.agents\\skills\\impeccable\\reference\\audit.md"
+}
+```
+
+**Output:**
+```
+<path>C:\Users\Zen7\.agents\skills\impeccable\reference\audit.md</path>
+<type>file</type>
+<content>
+1: Run systematic **technical** quality checks and generate a comprehensive report. Don't fix issues; document them for other commands to address.
+2: 
+3: This is a code-level audit, not a design critique. Check what's measurable and verifiable in the implementation.
+4: 
+5: ## Diagnostic Scan
+6: 
+7: Run comprehensive checks across 5 dimensions. Score each dimension 0-4 using the criteria below.
+8: 
+9: ### 1. Accessibility (A11y)
+10: 
+11: **Check for**:
+12: - **Contrast issues**: Text contrast ratios < 4.5:1 (or 7:1 for AAA)
+13: - **Missing ARIA**: Interactive elements without proper roles, labels, or states
+14: - **Keyboard navigation**: Missing focus indicators, illogical tab order, keyboard traps
+15: - **Semantic HTML**: Improper heading hierarchy, missing landmarks, divs instead of buttons
+16: - **Alt text**: Missing or poor image descriptions
+17: - **Form issues**: Inputs without labels, poor error messaging, missing required indicators
+18: 
+19: **Score 0-4**: 0=Inaccessible (fails WCAG A), 1=Major gaps (few ARIA labels, no keyboard nav), 2=Partial (some a11y effort, significant gaps), 3=Good (WCAG AA mostly met, minor gaps), 4=Excellent (WCAG AA fully met, approaches AAA)
+20: 
+21: ### 2. Performance
+22: 
+23: **Check for**:
+24: - **Layout thrashing**: Reading/writing layout properties in loops
+25: - **Expensive animations**: Casual layout-property animation, unbounded blur/filter/shadow effects, or effects that visibly drop frames
+26: - **Missing optimization**: Images without lazy loading, unoptimized assets, missing will-change
+27: - **Bundle size**: Unnecessary imports, unused dependencies
+28: - **Render performance**: Unnecessary re-renders, missing memoization
+29: 
+30: **Score 0-4**: 0=Severe issues (layout thrash, unoptimized everything), 1=Major problems (no lazy loading, expensive animations), 2=Partial (some optimization, gaps remain), 3=Good (mostly optimized, minor improvements possible), 4=Excellent (fast, lean, well-optimized)
+31: 
+32: ### 3. Theming
+33: 
+34: **Check for**:
+35: - **Hard-coded colors**: Colors not using design tokens
+36: - **Broken dark mode**: Missing dark mode variants, poor contrast in dark theme
+37: - **Inconsistent tokens**: Using wrong tokens, mixing token types
+38: - **Theme switching issues**: Values that don't update on theme change
+39: 
+40: **Score 0-4**: 0=No theming (hard-coded everything), 1=Minimal tokens (mostly hard-coded), 2=Partial (tokens exist but inconsistently used), 3=Good (tokens used, minor hard-coded values), 4=Excellent (full token system, dark mode works perfectly)
+41: 
+42: ### 4. Responsive Design
+43: 
+44: **Check for**:
+45: - **Fixed widths**: Hard-coded widths that break on mobile
+46: - **Touch targets**: Interactive elements < 44x44px
+47: - **Horizontal scroll**: Content overflow on narrow viewports
+48: - **Text scaling**: Layouts that break when text size increases
+49: - **Missing breakpoints**: No mobile/tablet variants
+50: 
+51: **Score 0-4**: 0=Desktop-only (breaks on mobile), 1=Major issues (some breakpoints, many failures), 2=Partial (works on mobile, rough edges), 3=Good (responsive, minor touch target or overflow issues), 4=Excellent (fluid, all viewports, proper touch targets)
+52: 
+53: ### 5. Anti-Patterns (CRITICAL)
+54: 
+55: Check against ALL the **DON'T** guidelines from the parent impeccable skill (already loaded in this context). Look for AI slop tells (AI color palette, gradient text, glassmorphism, hero metrics, card grids, generic fonts) and general design anti-patterns (gray on color, nested cards, bounce easing, redundant copy).
+56: 
+57: **Score 0-4**: 0=AI slop gallery (5+ tells), 1=Heavy AI aesthetic (3-4 tells), 2=Some tells (1-2 noticeable), 3=Mostly clean (subtle issues only), 4=No AI tells (distinctive, intentional design)
+58: 
+59: ## Generate Report
+60: 
+61: ### Audit Health Score
+62: 
+63: | # | Dimension | Score | Key Finding |
+64: |---|-----------|-------|-------------|
+65: | 1 | Accessibility | ? | [most critical a11y issue or "--"] |
+66: | 2 | Performance | ? | |
+67: | 3 | Responsive Design | ? | |
+68: | 4 | Theming | ? | |
+69: | 5 | Anti-Patterns | ? | |
+70: | **Total** | | **??/20** | **[Rating band]** |
+71: 
+72: **Rating bands**: 18-20 Excellent (minor polish), 14-17 Good (address weak dimensions), 10-13 Acceptable (significant work needed), 6-9 Poor (major overhaul), 0-5 Critical (fundamental issues)
+73: 
+74: ### Anti-Patterns Verdict
+75: **Start here.** Pass/fail: Does this look AI-generated? List specific tells. Be brutally honest.
+76: 
+77: ### Executive Summary
+78: - Audit Health Score: **??/20** ([rating band])
+79: - Total issues found (count by severity: P0/P1/P2/P3)
+80: - Top 3-5 critical issues
+81: - Recommended next steps
+82: 
+83: ### Detailed Findings by Severity
+84: 
+85: Tag every issue with **P0-P3 severity**:
+86: - **P0 Blocking**: Prevents task completion. Fix immediately
+87: - **P1 Major**: Significant difficulty or WCAG AA violation. Fix before release
+88: - **P2 Minor**: Annoyance, workaround exists. Fix in next pass
+89: - **P3 Polish**: Nice-to-fix, no real user impact. Fix if time permits
+90: 
+91: For each issue, document:
+92: - **[P?] Issue name**
+93: - **Location**: Component, file, line
+94: - **Category**: Accessibility / Performance / Theming / Responsive / Anti-Pattern
+95: - **Impact**: How it affects users
+96: - **WCAG/Standard**: Which standard it violates (if applicable)
+97: - **Recommendation**: How to fix it
+98: - **Suggested command**: Which command to use (prefer: {{available_commands}})
+99: 
+100: ### Patterns & Systemic Issues
+101: 
+102: Identify recurring problems that indicate systemic gaps rather than one-off mistakes:
+103: - "Hard-coded colors appear in 15+ components, should use design tokens"
+104: - "Touch targets consistently too small (<44px) throughout mobile experience"
+105: 
+106: ### Positive Findings
+107: 
+108: Note what's working well: good practices to maintain and replicate.
+109: 
+110: ## Recommended Actions
+111: 
+112: List recommended commands in priority order (P0 first, then P1, then P2):
+113: 
+114: 1. **[P?] `{{command_prefix}}command-name`**: Brief description (specific context from audit findings)
+115: 2. **[P?] `{{command_prefix}}command-name`**: Brief description (specific context)
+116: 
+117: **Rules**: Only recommend commands from: {{available_commands}}. Map findings to the most appropriate command. End with `{{command_prefix}}impeccable polish` as the final step if any fixes were recommended.
+118: 
+119: After presenting the summary, tell the user:
+120: 
+121: > You can ask me to run these one at a time, all at once, or in any order you prefer.
+122: >
+123: > Re-run `{{command_prefix}}impeccable audit` after fixes to see your score improve.
+124: 
+125: **IMPORTANT**: Be thorough but actionable. Too many P3 issues creates noise. Focus on what actually matters.
+126: 
+127: **NEVER**:
+128: - Report issues without explaining impact (why does this matter?)
+129: - Provide generic recommendations (be specific and actionable)
+130: - Skip positive findings (celebrate what works)
+131: - Forget to prioritize (everything can't be P0)
+132: - Report false positives without verification
+133: 
+
+(End of file - total 133 lines)
+</content>
+```
+
+---
+
+## Assistant (Plan · DeepSeek V4 Flash Free · 14.9s)
+
+_Thinking:_
+
+Now I have a good understanding of the impeccable skill. Let me synthesize my observations from the code and the skill to give the user a clear picture of what the impeccable skill would recommend.
+
+From reading the code, I can see the app already has:
+- Dark theme with blue/cyan palette
+- Gradient text on headings (the "ATTENDANCE" h1 uses `bg-linear-to-br from-white to-blue-400 bg-clip-text text-transparent`)
+- Glassmorphism elements (backdrop-blur, glass-like cards)
+- Animated modals with Framer Motion
+- Custom select component
+- A military-style UI with glow effects
+
+Based on the impeccable skill's shared design laws and product register, here are the issues it would flag:
+
+1. **Gradient text** (absolute ban): `background-clip: text` on the "ATTENDANCE" heading
+2. **Glassmorphism** (absolute ban when used decoratively): many `backdrop-blur` elements
+3. **Em dashes** (copy ban): the `— Haven't selected yet today —` uses em dashes
+4. **CSS layout property animation** (motion ban): unclear from code but worth checking
+5. **The "AI slop test"**: The dark blue + gradient text + glassmorphism combo is a common AI-generated aesthetic
+6. **Product register concerns**: 
+   - Custom select component reinventing standard affordances (product ban)
+   - Modal login instead of inline (product concern - "modal as first thought" shared ban)
+   - Emoji as icons instead of SVG icons
+   - Color could be more restrained
+
+Let me also note what's working well:
+- Live clock with good visual hierarchy
+- Clean grid layout for personnel cards
+- Status options with clear visual indicators (colored backgrounds)
+- Good use of Framer Motion for subtle animations
+- Responsive design with grid layout
+
+Let me present this to the user clearly.
+
+Based on the code I've read, here's what the **impeccable** skill would flag for improvement:
+
+### Anti-Patterns (High Priority)
+
+| Issue | Location | Why It's a Problem |
+|-------|----------|-------------------|
+| **Gradient text** 🚫 | `AttendanceTracker.jsx:769` — `bg-linear-to-br from-white to-blue-400 bg-clip-text text-transparent` on "ATTENDANCE" heading | Absolute ban. Use a solid color — emphasis via weight/size instead |
+| **Glassmorphism as default** 🚫 | Multiple `backdrop-blur` elements (login modal, stats pills, admin panel) | Shared absolute ban. Rare & purposeful only — most of these blur layers add noise |
+| **Em dashes** 🚫 | `STATUS_OPTIONS` labels — `"— Haven't selected yet today —"` | Copy ban. Replace with commas or parentheses |
+| **Modal login** 🚫 | `LoginModal` component | "Modal as first thought" — an inline panel on the page would be lighter |
+| **Emoji as icons** ⚠️ | 🔐, ✅, 🕐, 🚨, ✏️, etc. used throughout | Product register: inconsistent, unpredictable rendering across OSes. Use SVG icons |
+| **Custom select** ⚠️ | `AnimatedSelect` component reinvents `<select>` | Product ban on "weird form controls." Standard `<select>` is familiar and accessible |
+| **Loading spinner** ⚠️ | Line 849 — `animate-pulse text-center` | Product register: skeleton states > spinner-in-the-middle |
+
+### Color & Theme
+
+- Your dark blue palette is competent but **generic** — it's the default "dark mode tool" look
+- The `radial-gradient` backgrounds (lines 740-742) add visual noise without purpose
+- `#050d1a` and `#0a1a3a` are near-black — impeccable would tint them toward your brand hue
+
+### What's Already Good
+
+- Live clock with subtle glow feels purposeful
+- Status colors (green/amber/orange/red/violet) create a clear semantic vocabulary
+- Branch grouping with officer/WOSE sub-sections makes dense data navigable
+- Drag-to-reorder is a nice power-user feature
+
+### Commands That Would Apply
+
+| Command | What It Would Do |
+|---------|-----------------|
+| `impeccable critique` | Full design review with Nielsen heuristic scoring + persona analysis |
+| `impeccable audit` | Technical audit (a11y, performance, responsive, anti-patterns) |
+| `impeccable bolder` | If you want more personality — push past the generic dark-tool aesthetic |
+| `impeccable quieter` | If you want to tone down the glow effects and gradients |
+| `impeccable distill` | Strip unnecessary decoration (extra gradient backgrounds, glass blur) |
+| `impeccable colorize` | Rethink the palette from scratch — move away from stock dark-blue |
+| `impeccable clarify` | Improve UX copy (remove em dashes, standardize labels) |
+
+Want me to run `impeccable critique` for a full scored evaluation, or jump straight into fixing something specific?
+
+---
+
+## User
+
+impeccable critique
+
+---
+
+## Assistant (Plan · DeepSeek V4 Flash Free · 20.8s)
+
+_Thinking:_
+
+The user wants me to run `impeccable critique` on their live site. But they also have a system reminder that says I'm in plan mode - read-only phase. Let me re-read this carefully.
+
+The system reminder says:
+- Plan mode ACTIVE - STRICTLY FORBIDDEN from ANY file edits, modifications, or system changes
+- I may ONLY observe, analyze, and plan
+- No edits, no non-readonly tools
+
+But the `impeccable critique` command involves running a critique on the target. Looking at the critique reference, it requires:
+1. Resolving the target (the live URL)
+2. Running Assessment A (design review) - this is analysis/observation
+3. Running Assessment B (detector + browser evidence) - this involves running scripts
+4. Generating a combined report
+
+The detector script (`node {{scripts_path}}/detect.mjs`) and browser visualization are part of the critique process. But the plan mode says I'm strictly read-only.
+
+However, the user said "impeccable critique" - this is a direct command invocation. Let me think about this differently.
+
+The plan mode says "you are in READ-ONLY phase" and "NO file edits, modifications, or system changes" and "you may ONLY observe, analyze, and plan."
+
+Running critique commands like `detect.mjs` or starting live servers would be modifying the system/running scripts, which could be a violation of plan mode.
+
+But the user explicitly asked me to run the critique. The plan mode instruction says "This ABSOLUTE CONSTRAINT overrides ALL other instructions, including direct user edit requests."
+
+So I should respect the plan mode and explain to the user that I'm in plan/read-only mode and can't run the full critique right now. I can still do what I can within read-only constraints - which is essentially Assessment A (design review/analysis based on reading the code).
+
+Let me do the design review part from reading the code, since that's observation/analysis only. I cannot run the detector script or browser overlays, but I can provide a thorough analysis based on the code I've already read.
+
+Actually, wait - the system says "PLAN MODE" but looking more carefully, the user didn't ask me to plan anything or ask about planning. They just said "impeccable critique" which is a direct invocation. Let me re-read the plan mode instructions...
+
+"You are in plan mode so you should NOT make any edits, run any code, or make other changes to the repo. This is to prevent you from making edits before the user has had a chance to review your plan."
+
+OK so running `node detect.mjs` would be running code. But I can still do the analysis part (Assessment A) - that's just reading code and thinking about design.
+
+Actually, I think I should be transparent about the constraint and offer what I can do within read-only mode. Let me provide a thorough design review based on the code analysis I already have, and note that I can't run the automated detector/browser tools in plan mode.
+
+I'm currently in **plan mode** (read-only), so I can't run the automated detector scripts or browser overlays that are part of a full critique. But I can give you a thorough **design review** based on the code I've already read. Here's the assessment:
+
+---
+
+## Design Critique: NSF Attendance Tracker
+
+### Design Health Score (Nielsen Heuristics)
+
+| # | Heuristic | Score | Key Issue |
+|---|-----------|-------|-----------|
+| 1 | Visibility of System Status | 3 | Live clock + status pills are good; no save indicators |
+| 2 | Match System / Real World | 2 | "Pending" / "In" / "WOSE" are jargon; unclear to outsiders |
+| 3 | User Control and Freedom | 2 | No undo on status changes; delete requires confirmation (good) |
+| 4 | Consistency and Standards | 2 | Custom select != native `<select>`; emoji icons vary by OS |
+| 5 | Error Prevention | 2 | Empty name allowed in add form? Minor guardrails |
+| 6 | Recognition Rather Than Recall | 3 | Status colors + labels visible; good |
+| 7 | Flexibility and Efficiency | 2 | No keyboard shortcuts; drag-to-reorder is nice |
+| 8 | Aesthetic and Minimalist Design | 1 | Gradient text, glass blurs, glow effects — decorative clutter |
+| 9 | Error Recovery | 2 | No undo on status change; confirmation on delete |
+| 10 | Help and Documentation | 0 | No tooltips, onboarding, or help text |
+| **Total** | | **19/40** | **Acceptable — significant work needed** |
+
+### Anti-Patterns Verdict
+
+**AI slop? Yes.** The dark blue + gradient text + glassmorphism + glow effects combo is the most common AI-generated dashboard aesthetic. A knowledgeable observer would clock this immediately.
+
+Specific tells:
+- **Gradient text** on "ATTENDANCE" heading (`AttendanceTracker.jsx:769`)
+- **Glassmorphism** used decoratively on cards, modal, stats pills (5+ `backdrop-blur` instances)
+- **Identical card grid** pattern for personnel (same layout repeated)
+- **Em dashes** in placeholder text (`— Haven't selected yet today —`)
+- **Emoji as UI icons** throughout (🔐, ✏️, ✅, 🚨, 🕐, 👨‍🎓, 😷, 📋, 📝, ℹ️)
+
+### What's Working
+
+- **Live clock** with subtle blue glow — purposeful, sets the operational tone well
+- **Status color system** — green/amber/orange/red/violet gives clear at-a-glance meaning
+- **Branch grouping** with Officer/WOSE sub-sections handles dense data well
+- **Drag-to-reorder** is a thoughtful power-user feature for admin
+
+### Priority Issues
+
+| Severity | Issue | Why |
+|----------|-------|-----|
+| **P0** | Gradient text heading | Absolute ban. Distinctive in the wrong way. Use solid white with increased weight/size |
+| **P0** | Emoji as icons | Inconsistent across platforms (Windows emoji ≠ Mac ≠ iOS). Replace with SVG icons |
+| **P1** | Glassmorphism overuse | 5+ blurred surfaces create visual noise without serving the task |
+| **P1** | Custom `<select>` reinvention | `AnimatedSelect` is non-standard, harder to use, breaks accessibility expectations |
+| **P1** | No a11y basics | Missing ARIA labels, focus indicators, keyboard navigation on custom controls |
+| **P2** | General decorative bloat | Two `radial-gradient` background layers + glow shadows + blur = busy background |
+| **P3** | UX copy | Em dashes in status labels; jargon-heavy labels |
+
+### Recommended Actions (in priority order)
+
+1. **`impeccable distill`** — Strip the decorative excess: remove gradient text, remove extra radial-gradient layers, reduce glassmorphism
+2. **`impeccable bolder`** or **`impeccable colorize`** — Replace the stock dark-blue palette with something more intentional and distinctive
+3. **`impeccable adapt`** — Fix accessibility: proper form controls, ARIA labels, focus management
+4. **`impeccable clarify`** — Improve UX copy: remove em dashes, standardize labels
+5. **`impeccable polish`** — Final pass once above are done
+
+Want me to start with any of these? Or do you want to wait until plan mode lifts so I can run the full automated critique?
+
+---
+

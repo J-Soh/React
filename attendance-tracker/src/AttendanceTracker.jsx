@@ -7,8 +7,8 @@ const SUPABASE_URL  = process.env.REACT_APP_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
 const BRANCHES = ["Comd Office", "S1", "S2", "S3", "S4", "HQ Coy", "SPP", "MED CELL", "Not assigned yet"];
-const ADMIN_USERNAME = "Br WO";
-const ADMIN_PASSWORD = "29971";
+const ADMIN_USERNAME  = process.env.REACT_APP_ADMIN_USERNAME;
+const ADMIN_PASSWORD  = process.env.REACT_APP_ADMIN_PASSWORD;
 
 // All valid ranks
 const ALL_RANKS = [
@@ -32,7 +32,7 @@ const isSupportStaff  = p => (p.role||"wose") === "wose" && SUPPORT_RANKS.has(p.
 const isDXO           = p => DXO_RANKS.has(p.rank);
 const isPresent       = (p, statuses) => { const s = statuses[p.id]||"pending"; return s==="in"}; // || s === "late" || s === "duty"; };   <- uncomment this to let late and duty to become present instead of being absent. 
 
-// ─── Animated Portal Select ───────────────────────────────────────────────────
+// Animated Portal Select 
 const AnimatedSelect = ({ options, value, onChange, placeholder = "Select...", customStyles = "" }) => {
   const [isOpen, setIsOpen]       = useState(false);
   const [menuStyle, setMenuStyle] = useState({});
@@ -100,7 +100,7 @@ const AnimatedSelect = ({ options, value, onChange, placeholder = "Select...", c
   );
 };
 
-// ─── Live Clock ───────────────────────────────────────────────────────────────
+// Live Clock 
 const LiveClock = () => {
   const [now, setNow] = useState(new Date());
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
@@ -123,7 +123,7 @@ const LiveClock = () => {
   );
 };
 
-// ─── Admin Login Modal ────────────────────────────────────────────────────────
+// Admin Login Modal
 const LoginModal = ({ onLogin, onClose }) => {
   const [user, setUser]   = useState("");
   const [pass, setPass]   = useState("");
@@ -161,7 +161,7 @@ const LoginModal = ({ onLogin, onClose }) => {
   );
 };
 
-// ─── Supabase helper ──────────────────────────────────────────────────────────
+// Supabase helper 
 async function supabaseFetch(path, options = {}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: { apikey:SUPABASE_ANON_KEY, Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
@@ -172,14 +172,14 @@ async function supabaseFetch(path, options = {}) {
   return res.json();
 }
 
-// ─── Today's date key (SGT YYYY-MM-DD) used for daily status reset ───────────
+// Today's date key (SGT YYYY-MM-DD) used for daily status reset 
 function todaySGT() {
   const now = new Date();
   const sg  = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
   return `${sg.getFullYear()}-${String(sg.getMonth()+1).padStart(2,"0")}-${String(sg.getDate()).padStart(2,"0")}`;
 }
 
-// ─── Status options ───────────────────────────────────────────────────────────
+// Status options 
 const STATUS_OPTIONS = [
   { value:"pending", label:"— Haven't selected yet today —", color:"bg-white/5",       glow:""                                                                   },
   { value:"in",     label:"✅ In",                           color:"bg-emerald-500/20", glow:"shadow-[0_0_12px_rgba(52,211,153,0.4)]"  },
@@ -191,7 +191,7 @@ const STATUS_OPTIONS = [
   { value:"others", label:"📝 Others",                        color:"bg-slate-500/20",   glow:"shadow-[0_0_12px_rgba(100,116,139,0.4)]" },
 ];
 
-// ─── Date helpers ─────────────────────────────────────────────────────────────
+// Date helpers
 function fmtDateDDMMYY(d) {
   if (!d) return "??";
   const [y, m, day] = d.split("-");
@@ -208,7 +208,7 @@ function daysBetween(startISO, endISO) {
   return Math.round((e - s) / 86400000) + 1;
 }
 
-// ─── Summary ───────────────────────────────────────────────────────
+// Summary 
 function generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, courseStartDates, courseNames, statusTexts, permTypes, othersNotes) {
   const now  = new Date();
   const sg   = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
@@ -353,7 +353,7 @@ function generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, co
   return lines.join("\n");
 }
 
-// ─── Personnel Card ───────────────────────────────────────────────────────────
+// Personnel Card 
 function PersonnelCard({ p, isAdmin, status, mcDate, rsoDate, courseDate, courseStartDate, courseName,
   statusText, permType, othersNote,
   onStatusChange, onMcDate, onRsoDate, onCourseDate, onCourseStartDate, onCourseName,
@@ -527,7 +527,7 @@ function PersonnelCard({ p, isAdmin, status, mcDate, rsoDate, courseDate, course
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// Main Component 
 export default function AttendanceTracker() {
   const [personnel,        setPersonnel]        = useState([]);
   const [statuses,         setStatuses]         = useState({});
@@ -557,7 +557,7 @@ export default function AttendanceTracker() {
   const [adding,    setAdding]    = useState(false);
   const [deleteId,  setDeleteId]  = useState(null);
 
-  // ── fetch ──────────────────────────────────────────────────────────────────
+  // fetch 
   async function fetchPersonnel() {
     try {
       const data = await supabaseFetch("personnel?select=*&order=sort_order.asc,created_at.asc");
@@ -588,7 +588,7 @@ export default function AttendanceTracker() {
     return acc;
   }, {});
 
-  // ── patch helper ───────────────────────────────────────────────────────────
+  //  patch helper 
   const patch = async (id, body) => {
     try { await supabaseFetch(`personnel?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(body) }); }
     catch(e) { console.error(e); }
@@ -629,7 +629,7 @@ export default function AttendanceTracker() {
     setDeleteId(null);
   }
 
-  // ── Midnight daily reset (statuses → "pending") ────────────────────────────
+  // Midnight daily reset (statuses → "pending")
   useEffect(() => {
     // Check once on load: if stored date ≠ today, reset all statuses to "pending"
     const stored = localStorage.getItem("attendance_date");
@@ -677,14 +677,14 @@ export default function AttendanceTracker() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Inline edit (rank + name) ──────────────────────────────────────────────
+  // Inline edit (rank + name) 
   async function handleEditSave(id, rank, name) {
     setPersonnel(prev => prev.map(p => p.id===id ? { ...p, rank, name } : p));
     try { await supabaseFetch(`personnel?id=eq.${id}`, { method:"PATCH", body:JSON.stringify({ rank, name }) }); }
     catch(e) { console.error(e); }
   }
 
-  // ── Drag-to-reorder (within same role-group within same branch) ────────────
+  // Drag-to-reorder (within same role-group within same branch)
   function handleDragStart(id, groupKey) {
     dragItem.current = { id, groupKey };
   }
@@ -714,7 +714,7 @@ export default function AttendanceTracker() {
     dragItem.current = null; dragOverItem.current = null;
   }
 
-  // ── extract ────────────────────────────────────────────────────────────────
+  // extract 
   function handleExtract() {
     const txt   = generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, courseStartDates, courseNames, statusTexts, permTypes, othersNotes);
     const now   = new Date();
@@ -726,7 +726,7 @@ export default function AttendanceTracker() {
     a.href=url; a.download=fname; a.click(); URL.revokeObjectURL(url);
   }
 
-  // ── stats ──────────────────────────────────────────────────────────────────
+  // stats 
   const presCount   = personnel.filter(p => isPresent(p, statuses)).length;
   const absentCount = personnel.length - presCount;
 
@@ -734,7 +734,7 @@ export default function AttendanceTracker() {
   const allOfficers = personnel.filter(p => isOfficer(p));
   const allWoses    = personnel.filter(p => !isOfficer(p));
 
-  // ── render ─────────────────────────────────────────────────────────────────
+  // render 
   return (
     <div className="min-h-screen bg-[#050d1a] text-slate-200 font-sans pb-20 overflow-x-hidden">
       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_20%_10%,rgba(0,80,160,0.5)_0%,transparent_55%)]" />
@@ -763,7 +763,7 @@ export default function AttendanceTracker() {
           )}
         </div>
 
-        {/* ── Header ── */}
+        {/*  Header  */}
         <header className="text-center mb-10">
           <LiveClock />
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-linear-to-br from-white to-blue-400 bg-clip-text text-transparent uppercase">
@@ -772,7 +772,7 @@ export default function AttendanceTracker() {
           <p className="mt-2 text-slate-500 text-sm tracking-[0.2em] uppercase">Status Tracker</p>
         </header>
 
-        {/* ── Stats pills ── */}
+        {/*  Stats pills  */}
         <div className="flex flex-wrap justify-center gap-3 mb-10">
           {[
             { label:`${presCount} Present`,              dot:"bg-emerald-400", sh:"rgba(52,211,153,0.6)"  },
@@ -788,7 +788,7 @@ export default function AttendanceTracker() {
           ))}
         </div>
 
-        {/* ── Admin add panel ── */}
+        {/*  Admin add panel  */}
         {isAdmin && (
           <div className="flex justify-end mb-6">
             <button onClick={() => setShowAdmin(!showAdmin)}
@@ -843,7 +843,7 @@ export default function AttendanceTracker() {
           )}
         </AnimatePresence>
 
-        {/* ── Personnel list ── */}
+        {/*  Personnel list  */}
         <div className="space-y-10">
           {loading ? (
             <div className="text-center py-20 animate-pulse text-slate-500 uppercase tracking-widest text-xs">Loading Directory...</div>
@@ -942,12 +942,12 @@ export default function AttendanceTracker() {
         </div>
       </div>
 
-      {/* ── Login modal ── */}
+      {/*  Login modal  */}
       <AnimatePresence>
         {showLogin && <LoginModal onLogin={()=>{setIsAdmin(true);setShowLogin(false);}} onClose={()=>setShowLogin(false)} />}
       </AnimatePresence>
 
-      {/* ── Delete confirm ── */}
+      {/*  Delete confirm  */}
       <AnimatePresence>
         {deleteId && (
           <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}

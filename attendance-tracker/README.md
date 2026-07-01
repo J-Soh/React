@@ -1,7 +1,6 @@
 #### Attandance Tracker App
 
-
-[![App Demo](https://img.youtube.com/vi/gqPlc4hhKcM/maxresdefault.jpg)](https://youtu.be/gqPlc4hhKcM?si=eRiSY8Sp0WbcH_YL)
+[![App Demo](https://img.youtube.com/vi/wVvXybZO05s/maxresdefault.jpg)](https://youtu.be/wVvXybZO05s)
 
 - [Live build](https://nsf-attendance-tracker.netlify.app/)
 - This project was developed using React (frontend) + Tailwind CSS, and Supabase (backend).
